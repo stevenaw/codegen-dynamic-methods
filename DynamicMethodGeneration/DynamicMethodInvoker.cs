@@ -2,7 +2,7 @@
 
 namespace DynamicMethodGeneration
 {
-    // TODO: Interal cache (tiered? Type -> MethodName + Static/Instance -> ArgListUniqueness
+    // TODO: Interal cache (tiered? Type -> MethodName + Static/Instance -> ArgListUniqueness (some sort of method name mangling)
     // TODO: Don't use DynamicInvoke. Instead use the actual delegate (ex: Action<TestClass, int, int>)
     public class DynamicMethodInvoker
     {
