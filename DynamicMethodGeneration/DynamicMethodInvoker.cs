@@ -3,6 +3,7 @@
 namespace DynamicMethodGeneration
 {
     // TODO: Interal cache (tiered? Type -> MethodName + Static/Instance -> ArgListUniqueness
+    // TODO: Don't use DynamicInvoke. Instead use the actual delegate (ex: Action<TestClass, int, int>)
     public class DynamicMethodInvoker
     {
         private static DynamicMethodFactory _factory = new DynamicMethodFactory();
