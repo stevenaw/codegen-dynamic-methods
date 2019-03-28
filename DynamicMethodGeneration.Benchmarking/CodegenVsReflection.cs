@@ -1,8 +1,6 @@
-﻿using System;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Runtime.CompilerServices;
 using BenchmarkDotNet.Attributes;
-using DynamicMethodGeneration.Extensions;
 
 namespace DynamicMethodGeneration.Benchmarking
 {
@@ -10,35 +8,26 @@ namespace DynamicMethodGeneration.Benchmarking
     public class CodegenVsReflection
     {
         private TestClass _testClass;
-        private Action<TestClass, int, int> _method;
+        private DynamicMethodInvoker _invoker;
         private MethodInfo _methodReflection;
 
         [GlobalSetup]
         public void InitialSetup()
         {
-            var factory = new DynamicMethodFactory();
-
             _testClass = new TestClass();
-            _method = (Action<TestClass, int, int>)factory.GetAction(_testClass, nameof(TestClass.MyMethod), 2, 4);
             _methodReflection = _testClass.GetType().GetMethod(nameof(TestClass.MyMethod));
+
+            _invoker = new DynamicMethodInvoker();
+            
         }
 
         [Benchmark]
-        public void CodegenBareInvoke() => _method(_testClass, 2, 4);
-
-        [Benchmark]
-        public void CodeGenColdStart() => _testClass.InvokeAction(nameof(TestClass.MyMethod), 2, 4);
-
-        [Benchmark]
-        public void ReflectionColdStart()
-        {
-            _testClass.GetType().GetMethod(nameof(TestClass.MyMethod)).Invoke(_testClass, new object[] { 2, 2 });
-        }
-
+        public void CodegenBareInvoke() => _invoker.InvokeAction(_methodReflection, _testClass, 2, 4);
+        
         [Benchmark]
         public void ReflectionBareInvoke()
         {
-            _methodReflection.Invoke(_testClass, new object[] { 2, 2 });
+            _methodReflection.Invoke(_testClass, new object[] { 2, 4 });
         }
 
         public class TestClass

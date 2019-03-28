@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using System.Reflection.Emit;
+using Emit = System.Reflection.Emit;
 
 namespace DynamicMethodGeneration
 {
@@ -8,61 +9,44 @@ namespace DynamicMethodGeneration
     // TODO: Verify that methodinfo found matches the args + types provided
     internal class DynamicMethodFactory
     {
-        public Delegate GetAction(Type type, string methodName, params object[] args)
+        public DynamicMethod GetAction(MethodInfo memberInfo, object instance, params object[] args)
         {
-            return GetAction(type, methodName, null, args);
+            return GetDelegate(memberInfo, typeof(void), instance, args);
         }
 
-        public Delegate GetAction(object instance, string methodName, params object[] args)
+        public DynamicMethod GetFunction<TResult>(MethodInfo memberInfo, object instance, params object[] args)
         {
-            return GetAction(instance.GetType(), methodName, instance, args);
+            return GetDelegate(memberInfo, typeof(TResult), instance, args);
         }
 
-        public Delegate GetFunction<TResult>(Type type, string methodName, params object[] args)
-        {
-            return GetFunction<TResult>(type, methodName, null, args);
-        }
-
-        public Delegate GetFunction<TResult>(object instance, string methodName, params object[] args)
-        {
-            return GetFunction<TResult>(instance.GetType(), methodName, instance, args);
-        }
-
-
-        private Delegate GetAction(Type type, string methodName, object instance, params object[] args)
-        {
-            return GetDelegate(type, methodName, typeof(void), instance, args);
-        }
-
-        private Delegate GetFunction<TResult>(Type type, string methodName, object instance, object[] args)
-        {
-            return GetDelegate(type, methodName, typeof(TResult), instance, args);
-        }
-
-        private Delegate GetDelegate(Type type, string methodName, Type returnType, object instance, object[] args)
+        private DynamicMethod GetDelegate(MethodInfo methodInfo, Type returnType, object instance, object[] args)
         {
             if (args == null)
                 args = new object[0];
 
             var argTypes = Type.GetTypeArray(args);
-            var desiredFunction = type.GetMethod(methodName);
 
             // TODO: Check if method is static before adding this
             if (instance != null)
             {
-                argTypes = ArrayHelper.Prepend(argTypes, type);
+                argTypes = ArrayHelper.Prepend(argTypes, instance.GetType());
             }
 
-            var method = new DynamicMethod(methodName, desiredFunction.ReturnType, argTypes);
-            CreateMethodBody(method, desiredFunction, argTypes);
+            // TODO: Make this name dynamic ??
+            var method = new Emit.DynamicMethod(methodInfo.Name, methodInfo.ReturnType, argTypes);
+            CreateMethodBody(method, methodInfo, argTypes);
 
             var delegateType = CreateDelegateType(argTypes, returnType);
             var invoker = method.CreateDelegate(delegateType);
 
-            return invoker;
+            return new DynamicMethod
+            {
+                Invoker = invoker,
+                UnderlyingType = delegateType
+            };
         }
 
-        private static void CreateMethodBody(DynamicMethod dynamicMethod, MethodInfo method, Type[] args)
+        private static void CreateMethodBody(Emit.DynamicMethod dynamicMethod, MethodInfo method, Type[] args)
         {
             var generator = dynamicMethod.GetILGenerator();
 

@@ -1,9 +1,11 @@
-﻿namespace DynamicMethodGeneration.Tests
+﻿using System.Reflection;
+
+namespace DynamicMethodGeneration.Tests
 {
-    public class InstanceTestCaseData
+    public class TestCaseData
     {
         public object Instance { get; set; }
-        public string MethodName { get; set; }
+        public MethodInfo Method { get; set; }
         public object[] Args { get; set; }
         public object ExpectedResult { get; set; }
     }

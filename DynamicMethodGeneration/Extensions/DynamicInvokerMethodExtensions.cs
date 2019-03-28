@@ -6,12 +6,12 @@
 
         public static void InvokeAction(this object target, string methodName, params object[] args)
         {
-            _invoker.InvokeAction(target, methodName, args);
+            _invoker.InvokeAction(target.GetType().GetMethod(methodName), target, args);
         }
 
         public static TResult InvokeFunction<TResult>(this object target, string methodName, params object[] args)
         {
-            return _invoker.InvokeFunction<TResult>(target, methodName, args);
+            return _invoker.InvokeFunction<TResult>(target.GetType().GetMethod(methodName), target, args);
         }
     }
 }

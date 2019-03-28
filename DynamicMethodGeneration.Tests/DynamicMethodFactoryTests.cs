@@ -4,82 +4,88 @@ namespace DynamicMethodGeneration.Tests
 {
     // TODO: Verify the expected method is actually called
     // TODO: Failure tests where invalid number of params are passed
-    // TODO: Test overloaded functions
     public partial class DynamicMethodFactoryTests
     {
-        [TestCaseSource(nameof(InstanceActionTestCases))]
-        public void GetAction_ShouldReturnInvocable(InstanceTestCaseData testCase)
+        [TestCaseSource(nameof(ActionTestCases))]
+        public void GetAction_ShouldReturnInvocable(TestCaseData testCase)
         {
             var factory = new DynamicMethodFactory();
-            var method = factory.GetAction(testCase.Instance, testCase.MethodName, testCase.Args);
+            var method = factory.GetAction(testCase.Method, testCase.Instance, testCase.Args);
 
             Assert.That(method, Is.Not.Null);
 
-            var methodArgs = ArrayHelper.Prepend(testCase.Args ?? new object[0], testCase.Instance);
-            method.DynamicInvoke(methodArgs);
+            var methodArgs = GetArgs(testCase.Args, testCase.Instance);
+            method.Invoker.DynamicInvoke(methodArgs);
         }
 
-        [TestCaseSource(nameof(InstanceFunctionTestCases))]
-        public void GetFunction_ShouldReturnInvocable(InstanceTestCaseData testCase)
+        [TestCaseSource(nameof(FunctionTestCases))]
+        public void GetFunction_ShouldReturnInvocable(TestCaseData testCase)
         {
             var factory = new DynamicMethodFactory();
-            var method = factory.GetFunction<int>(testCase.Instance, testCase.MethodName, testCase.Args);
+            var method = factory.GetFunction<int>(testCase.Method, testCase.Instance, testCase.Args);
 
             Assert.That(method, Is.Not.Null);
 
-            var methodArgs = ArrayHelper.Prepend(testCase.Args ?? new object[0], testCase.Instance);
-            var result = (int)method.DynamicInvoke(methodArgs);
+            var methodArgs = GetArgs(testCase.Args, testCase.Instance);
+            var result = (int)method.Invoker.DynamicInvoke(methodArgs);
 
             Assert.That(result, Is.EqualTo(testCase.ExpectedResult));
         }
 
-        [TestCaseSource(nameof(StaticActionTestCases))]
-        public void GetAction_ShouldReturnInvocable(StaticTestCaseData testCase)
+        private static object[] GetArgs(object[] args, object instance)
         {
-            var factory = new DynamicMethodFactory();
-            var method = factory.GetAction(testCase.Type, testCase.MethodName, testCase.Args);
-
-            Assert.That(method, Is.Not.Null);
-
-            method.DynamicInvoke(testCase.Args);
+            if (instance == null)
+                return args ?? new object[0];
+            else if (args == null)
+                return new object[] { instance };
+            else
+                return ArrayHelper.Prepend(args, instance);
         }
 
-        [TestCaseSource(nameof(StaticFunctionTestCases))]
-        public void GetFunction_ShouldReturnInvocable(StaticTestCaseData testCase)
-        {
-            var factory = new DynamicMethodFactory();
-            var method = factory.GetFunction<int>(testCase.Type, testCase.MethodName, testCase.Args);
-
-            Assert.That(method, Is.Not.Null);
-
-            var result = (int)method.DynamicInvoke(testCase.Args);
-
-            Assert.That(result, Is.EqualTo(testCase.ExpectedResult));
-        }
-
-        #region TestCaseData
-        public static StaticTestCaseData[] StaticActionTestCases
+        public static TestCaseData[] ActionTestCases
         {
             get
             {
-                return new StaticTestCaseData[]
+                return new TestCaseData[]
                 {
-                    new StaticTestCaseData()
+                    // Static
+                    new TestCaseData()
                     {
-                        Type = typeof(TestStaticClass),
-                        MethodName = nameof(TestStaticClass.MethodNoArgsNoReturn),
+                        Method = typeof(TestStaticClass).GetMethod(nameof(TestStaticClass.MethodNoArgsNoReturn)),
                         Args = null
                     },
-                    new StaticTestCaseData()
+                    new TestCaseData()
                     {
-                        Type = typeof(TestStaticClass),
-                        MethodName = nameof(TestStaticClass.MethodNoArgsNoReturn),
+                        Method = typeof(TestStaticClass).GetMethod(nameof(TestStaticClass.MethodNoArgsNoReturn)),
                         Args = new object[0]
                     },
-                    new StaticTestCaseData()
+                    new TestCaseData()
                     {
-                        Type = typeof(TestStaticClass),
-                        MethodName = nameof(TestStaticClass.MethodWithArgsAndNoReturn),
+                        Method = typeof(TestStaticClass).GetMethod(nameof(TestStaticClass.MethodWithArgsAndNoReturn)),
+                        Args = new object[]
+                        {
+                            2,
+                            5
+                        }
+                    },
+
+                    // Instance
+                    new TestCaseData()
+                    {
+                        Instance = new TestInstanceClass(),
+                        Method = typeof(TestInstanceClass).GetMethod(nameof(TestInstanceClass.MethodNoArgsNoReturn)),
+                        Args = null
+                    },
+                    new TestCaseData()
+                    {
+                        Instance = new TestInstanceClass(),
+                        Method = typeof(TestInstanceClass).GetMethod(nameof(TestInstanceClass.MethodNoArgsNoReturn)),
+                        Args = new object[0]
+                    },
+                    new TestCaseData()
+                    {
+                        Instance = new TestInstanceClass(),
+                        Method = typeof(TestInstanceClass).GetMethod(nameof(TestInstanceClass.MethodWithArgsAndNoReturn)),
                         Args = new object[]
                         {
                             2,
@@ -90,99 +96,56 @@ namespace DynamicMethodGeneration.Tests
             }
         }
 
-        public static StaticTestCaseData[] StaticFunctionTestCases
+        public static TestCaseData[] FunctionTestCases
         {
             get
             {
-                return new StaticTestCaseData[]
+                return new TestCaseData[]
                 {
-                    new StaticTestCaseData()
+                    // Static
+                    new TestCaseData()
                     {
-                        Type = typeof(TestStaticClass),
-                        MethodName = nameof(TestStaticClass.MethodNoArgsHasReturn),
+                        Method = typeof(TestStaticClass).GetMethod(nameof(TestStaticClass.MethodNoArgsHasReturn)),
                         Args = null,
                         ExpectedResult = TestStaticClass.MethodNoArgsHasReturn()
                     },
-                    new StaticTestCaseData()
+                    new TestCaseData()
                     {
-                        Type = typeof(TestStaticClass),
-                        MethodName = nameof(TestStaticClass.MethodNoArgsHasReturn),
+                        Method = typeof(TestStaticClass).GetMethod(nameof(TestStaticClass.MethodNoArgsHasReturn)),
                         Args = new object[0],
                         ExpectedResult = TestStaticClass.MethodNoArgsHasReturn()
                     },
-                    new StaticTestCaseData()
+                    new TestCaseData()
                     {
-                        Type = typeof(TestStaticClass),
-                        MethodName = nameof(TestStaticClass.MethodWithArgsAndReturn),
+                        Method = typeof(TestStaticClass).GetMethod(nameof(TestStaticClass.MethodWithArgsAndReturn)),
                         Args = new object[] { 2, 5 },
                         ExpectedResult = TestStaticClass.MethodWithArgsAndReturn(2, 5)
-                    }
-                };
-            }
-        }
-
-        public static InstanceTestCaseData[] InstanceActionTestCases
-        {
-            get
-            {
-                return new InstanceTestCaseData[]
-                {
-                    new InstanceTestCaseData()
-                    {
-                        Instance = new TestInstanceClass(),
-                        MethodName = nameof(TestInstanceClass.MethodNoArgsNoReturn),
-                        Args = null
                     },
-                    new InstanceTestCaseData()
-                    {
-                        Instance = new TestInstanceClass(),
-                        MethodName = nameof(TestInstanceClass.MethodNoArgsNoReturn),
-                        Args = new object[0]
-                    },
-                    new InstanceTestCaseData()
-                    {
-                        Instance = new TestInstanceClass(),
-                        MethodName = nameof(TestInstanceClass.MethodWithArgsAndNoReturn),
-                        Args = new object[]
-                        {
-                            2,
-                            5
-                        }
-                    }
-                };
-            }
-        }
 
-        public static InstanceTestCaseData[] InstanceFunctionTestCases
-        {
-            get
-            {
-                return new InstanceTestCaseData[]
-                {
-                    new InstanceTestCaseData()
+                    // Instance
+                    new TestCaseData()
                     {
                         Instance = new TestInstanceClass(),
-                        MethodName = nameof(TestInstanceClass.MethodNoArgsHasReturn),
+                        Method = typeof(TestInstanceClass).GetMethod(nameof(TestInstanceClass.MethodNoArgsHasReturn)),
                         Args = null,
                         ExpectedResult = new TestInstanceClass().MethodNoArgsHasReturn()
                     },
-                    new InstanceTestCaseData()
+                    new TestCaseData()
                     {
                         Instance = new TestInstanceClass(),
-                        MethodName = nameof(TestInstanceClass.MethodNoArgsHasReturn),
+                        Method = typeof(TestInstanceClass).GetMethod(nameof(TestInstanceClass.MethodNoArgsHasReturn)),
                         Args = new object[0],
                         ExpectedResult = new TestInstanceClass().MethodNoArgsHasReturn()
                     },
-                    new InstanceTestCaseData()
+                    new TestCaseData()
                     {
                         Instance = new TestInstanceClass(),
-                        MethodName = nameof(TestInstanceClass.MethodWithArgsAndReturn),
+                        Method = typeof(TestInstanceClass).GetMethod(nameof(TestInstanceClass.MethodWithArgsAndReturn)),
                         Args = new object[] { 2, 5 },
                         ExpectedResult = new TestInstanceClass().MethodWithArgsAndReturn(2, 5)
                     }
                 };
             }
         }
-        #endregion
     }
 }
