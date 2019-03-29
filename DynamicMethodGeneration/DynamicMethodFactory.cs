@@ -33,13 +33,22 @@ namespace DynamicMethodGeneration
         private (Delegate invoker, Type delegateType) GetDelegate(MethodInfo methodInfo, Type returnType, object instance)
         {
             // TODO: Save param types to DynamicMethod so can validate invocations
-            // TODO: No toArray()
-            var argTypes = methodInfo.GetParameters().Select(o => o.ParameterType).ToArray();// Type.GetTypeArray(args);
+            var parameterInfo = methodInfo.GetParameters();
+            Type[] argTypes;
 
-            // TODO: Check if method is static before adding this
-            if (instance != null)
+            if (instance == null)
             {
-                argTypes = ArrayHelper.Prepend(argTypes, instance.GetType());
+                argTypes = new Type[parameterInfo.Length];
+                for (var i = 0; i < parameterInfo.Length; i++)
+                    argTypes[i] = parameterInfo[i].ParameterType;
+            }
+            else
+            {
+                // TODO: Check if method is static before adding this
+                argTypes = new Type[parameterInfo.Length + 1];
+                argTypes[0] = instance.GetType();
+                for (var i = 0; i < parameterInfo.Length; i++)
+                    argTypes[i + 1] = parameterInfo[i].ParameterType;
             }
 
             // TODO: Make this name dynamic ??
