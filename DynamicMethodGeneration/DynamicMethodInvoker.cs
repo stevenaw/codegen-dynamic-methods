@@ -2,7 +2,6 @@
 
 namespace DynamicMethodGeneration
 {
-    // TODO: Don't use DynamicInvoke. Instead use the actual delegate (ex: Action<TestClass, int, int>)
     public class DynamicMethodInvoker
     {
         private static DynamicMethodFactory _factory = new DynamicMethodFactory();
@@ -10,60 +9,54 @@ namespace DynamicMethodGeneration
         
         public void InvokeAction(MethodInfo methodInfo, params object[] args)
         {
-            var method = GetAction(methodInfo, null, args);
+            var method = GetAction(methodInfo, null);
 
-            method.Invoker.DynamicInvoke(args);
+            method.Invoke(args);
         }
 
         public void InvokeAction(MethodInfo methodInfo, object instance, params object[] args)
         {
-            var method = GetAction(methodInfo, instance, args);
+            var method = GetAction(methodInfo, instance);
 
-            if (args.Length == 0)
-                method.Invoker.DynamicInvoke(instance);
-            else
-                method.Invoker.DynamicInvoke(ArrayHelper.Prepend(args, instance));
+            method.Invoke(instance, args);
         }
 
         public TResult InvokeFunction<TResult>(MethodInfo methodInfo, params object[] args)
         {
-            var method = GetFunction<TResult>(methodInfo, null, args);
-
-            return (TResult)method.Invoker.DynamicInvoke(args);
+            var method = GetFunction<TResult>(methodInfo, null);
+            
+            return method.Invoke(args);
         }
 
         public TResult InvokeFunction<TResult>(MethodInfo methodInfo, object instance, params object[] args)
         {
-            var method = GetFunction<TResult>(methodInfo, instance, args);
+            var method = GetFunction<TResult>(methodInfo, instance);
 
-            if (args.Length == 0)
-                return (TResult)method.Invoker.DynamicInvoke(instance);
-            else
-                return (TResult)method.Invoker.DynamicInvoke(ArrayHelper.Prepend(args, instance));
+            return method.Invoke(instance, args);
         }
         
-        private static DynamicMethod GetAction(MethodInfo methodInfo, object instance, object[] args)
+        private static DynamicMethod GetAction(MethodInfo methodInfo, object instance)
         {
             var method = _cache.Get(methodInfo);
             if (method == null)
             {
-                method = _factory.GetAction(methodInfo, instance, args);
+                method = _factory.GetAction(methodInfo, instance);
                 _cache.Add(methodInfo, method);
             }
 
             return method;
         }
 
-        private static DynamicMethod GetFunction<TResult>(MethodInfo methodInfo, object instance, object[] args)
+        private static DynamicMethod<TResult> GetFunction<TResult>(MethodInfo methodInfo, object instance)
         {
             var method = _cache.Get(methodInfo);
             if (method == null)
             {
-                method = _factory.GetFunction<TResult>(methodInfo, instance, args);
+                method = _factory.GetFunction<TResult>(methodInfo, instance);
                 _cache.Add(methodInfo, method);
             }
 
-            return method;
+            return (DynamicMethod<TResult>)method;
         }
     }
 }

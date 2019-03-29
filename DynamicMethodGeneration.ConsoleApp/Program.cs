@@ -42,10 +42,10 @@ namespace DynamicMethodGeneration.ConsoleApp
             Console.WriteLine($"Return value = {value}");
 
             // Static method /w args and no return
-            invoker.InvokeAction(owningType.GetMethod(nameof(TestClass.MethodWithArgsAndNoReturn)), 2, 5);
+            invoker.InvokeAction(owningType.GetMethod(nameof(TestClass.MethodWithArgsAndNoReturn)), null, 2, 5);
 
             // Static method /w args and return value
-            value = invoker.InvokeFunction<int>(owningType.GetMethod(nameof(TestClass.MethodWithArgsAndReturn)), 2, 5);
+            value = invoker.InvokeFunction<int>(owningType.GetMethod(nameof(TestClass.MethodWithArgsAndReturn)), null, 2, 5);
             Console.WriteLine($"Return value = {value}");
         }
     }

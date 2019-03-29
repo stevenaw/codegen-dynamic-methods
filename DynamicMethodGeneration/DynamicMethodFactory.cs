@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using Emit = System.Reflection.Emit;
@@ -9,22 +10,31 @@ namespace DynamicMethodGeneration
     // TODO: Verify that methodinfo found matches the args + types provided
     internal class DynamicMethodFactory
     {
-        public DynamicMethod GetAction(MethodInfo memberInfo, object instance, params object[] args)
+        public DynamicMethod GetAction(MethodInfo memberInfo, object instance)
         {
-            return GetDelegate(memberInfo, typeof(void), instance, args);
+            var method = GetDelegate(memberInfo, typeof(void), instance);
+            return new DynamicMethod
+            {
+                Invoker = method.invoker,
+                UnderlyingType = method.delegateType
+            };
         }
 
-        public DynamicMethod GetFunction<TResult>(MethodInfo memberInfo, object instance, params object[] args)
+        public DynamicMethod<TResult> GetFunction<TResult>(MethodInfo memberInfo, object instance)
         {
-            return GetDelegate(memberInfo, typeof(TResult), instance, args);
+            var method = GetDelegate(memberInfo, typeof(TResult), instance);
+            return new DynamicMethod<TResult>
+            {
+                Invoker = method.invoker,
+                UnderlyingType = method.delegateType
+            };
         }
 
-        private DynamicMethod GetDelegate(MethodInfo methodInfo, Type returnType, object instance, object[] args)
+        private (Delegate invoker, Type delegateType) GetDelegate(MethodInfo methodInfo, Type returnType, object instance)
         {
-            if (args == null)
-                args = new object[0];
-
-            var argTypes = Type.GetTypeArray(args);
+            // TODO: Save param types to DynamicMethod so can validate invocations
+            // TODO: No toArray()
+            var argTypes = methodInfo.GetParameters().Select(o => o.ParameterType).ToArray();// Type.GetTypeArray(args);
 
             // TODO: Check if method is static before adding this
             if (instance != null)
@@ -39,11 +49,7 @@ namespace DynamicMethodGeneration
             var delegateType = CreateDelegateType(argTypes, returnType);
             var invoker = method.CreateDelegate(delegateType);
 
-            return new DynamicMethod
-            {
-                Invoker = invoker,
-                UnderlyingType = delegateType
-            };
+            return (invoker, delegateType);
         }
 
         private static void CreateMethodBody(Emit.DynamicMethod dynamicMethod, MethodInfo method, Type[] args)
