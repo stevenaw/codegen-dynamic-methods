@@ -10,6 +10,7 @@ namespace DynamicMethodGeneration.ConsoleApp
         {
             return a * b;
         }
+
         public void MethodWithArgsAndNoReturn(int a, int b)
         {
             Console.WriteLine($"Output is {a + b}");

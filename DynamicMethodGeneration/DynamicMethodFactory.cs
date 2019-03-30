@@ -6,7 +6,6 @@ using Emit = System.Reflection.Emit;
 namespace DynamicMethodGeneration
 {
     // TODO: Test support for fields, properties, etc
-    // TODO: Verify that methodinfo found matches the args + types provided
     internal class DynamicMethodFactory
     {
         public DynamicMethod GetAction(MethodInfo memberInfo)
@@ -31,7 +30,6 @@ namespace DynamicMethodGeneration
 
         private (Delegate invoker, Type delegateType) GetDelegate(MethodInfo methodInfo, Type returnType)
         {
-            // TODO: Save param types to DynamicMethod so can validate invocations
             var parameterInfo = methodInfo.GetParameters();
             Type[] argTypes;
 
@@ -43,7 +41,6 @@ namespace DynamicMethodGeneration
             }
             else
             {
-                // TODO: Check if method is static before adding this
                 argTypes = new Type[parameterInfo.Length + 1];
                 argTypes[0] = methodInfo.DeclaringType;
                 for (var i = 0; i < parameterInfo.Length; i++)

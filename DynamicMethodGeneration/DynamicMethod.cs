@@ -2,6 +2,10 @@
 
 namespace DynamicMethodGeneration
 {
+    // TODO: Verify that delegate matches the args + types provided
+    // TODO: Add helper functions to make passing the instance more intuitive
+    //    Decorator pattern maybe?
+    //    public DynamicMethod WithInstance<TInstance>() { return this; }
     public class DynamicMethod
     {
         internal Delegate Invoker { get; set; }
@@ -39,6 +43,7 @@ namespace DynamicMethodGeneration
 
         public void Invoke(params object[] args)
         {
+            // TODO: Try and infer the fn type based on DynamicMethod.UnderlyingType
             Invoker.DynamicInvoke(GetArgs(args));
         }
 
