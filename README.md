@@ -40,5 +40,5 @@ public class TestClass
 var instance = new TestClass();
 var methodInfo = instance.GetType().GetMethod(nameof(TestClass.MethodWithArgsAndReturn));
 var compiledMethod = methodInfo.Compile<int>();
-var result = methodHasArgsNoReturn.Invoke(instance, 2, 5);
+var result = methodHasArgsNoReturn.WithInstance(instance).Invoke(2, 5);
 ```

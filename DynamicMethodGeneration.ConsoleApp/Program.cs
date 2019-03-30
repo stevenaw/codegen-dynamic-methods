@@ -20,20 +20,20 @@ namespace DynamicMethodGeneration.ConsoleApp
 
             // Static method /w no args and no return
             var methodNoArgsNoReturn = owningType.GetMethod(nameof(TestInstanceClass.MethodNoArgsNoReturn)).Compile();
-            methodNoArgsNoReturn.Invoke(target);
+            methodNoArgsNoReturn.WithInstance(target).Invoke();
 
             // Static method /w no args and return value
             var methodNoArgsHasReturn = owningType.GetMethod(nameof(TestInstanceClass.MethodNoArgsHasReturn)).Compile<int>();
-            var value = methodNoArgsHasReturn.Invoke(target);
+            var value = methodNoArgsHasReturn.WithInstance(target).Invoke();
             Console.WriteLine($"Return value = {value}");
 
             // Static method /w args and no return
             var methodHasArgsNoReturn = owningType.GetMethod(nameof(TestInstanceClass.MethodWithArgsAndNoReturn)).Compile();
-            methodHasArgsNoReturn.Invoke(target, 2, 5);
+            methodHasArgsNoReturn.WithInstance(target).Invoke(2, 5);
 
             // Static method /w args and return value
             var methodHasArgsHasReturn = owningType.GetMethod(nameof(TestInstanceClass.MethodWithArgsAndReturn)).Compile<int>();
-            value = methodHasArgsHasReturn.Invoke(target, 2, 5);
+            value = methodHasArgsHasReturn.WithInstance(target).Invoke(2, 5);
             Console.WriteLine($"Return value = {value}");
         }
 

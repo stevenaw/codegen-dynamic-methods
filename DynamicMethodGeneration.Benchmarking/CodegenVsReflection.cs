@@ -25,10 +25,15 @@ namespace DynamicMethodGeneration.Benchmarking
         }
 
         [Benchmark]
-        public void Codegen_GenerateAndInvoke() => _methodForGenerating.Compile().Invoke(_testClass, 2, 4);
+        public void Codegen_GenerateAndInvoke() => _methodForGenerating
+                                                    .Compile()
+                                                    .WithInstance(_testClass)
+                                                    .Invoke(2, 4);
 
         [Benchmark]
-        public void Codegen_BareInvoke() => _cachedCompiledMethod.Invoke(_testClass, 2, 4);
+        public void Codegen_BareInvoke() => _cachedCompiledMethod
+                                                .WithInstance(_testClass)
+                                                .Invoke(2, 4);
 
         [Benchmark]
         public void Reflection_BareInvoke() => _methodForGenerating.Invoke(_testClass, new object[] { 2, 4 });

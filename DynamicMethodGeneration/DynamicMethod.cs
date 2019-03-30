@@ -3,10 +3,7 @@
 namespace DynamicMethodGeneration
 {
     // TODO: Verify that delegate matches the args + types provided
-    // TODO: Add helper functions to make passing the instance more intuitive
-    //    Decorator pattern maybe?
-    //    public DynamicMethod WithInstance<TInstance>() { return this; }
-    public class DynamicMethod
+    public class DynamicMethod : IDynamicMethod
     {
         internal Delegate Invoker { get; set; }
         internal Type UnderlyingType { get; set; }
@@ -51,9 +48,18 @@ namespace DynamicMethodGeneration
         {
             Invoker.DynamicInvoke(GetArgs(args, instance));
         }
+
+        public DynamicMethodInvocation<TInstance> WithInstance<TInstance>(TInstance instance)
+        {
+            return new DynamicMethodInvocation<TInstance>()
+            {
+                Method = this,
+                Instance = instance
+            };
+        }
     }
 
-    public class DynamicMethod<T> : DynamicMethod
+    public class DynamicMethod<T> : DynamicMethod, IDynamicMethod<T>
     {
         public new T Invoke()
         {
@@ -83,6 +89,16 @@ namespace DynamicMethodGeneration
         public new T Invoke(object instance, params object[] args)
         {
             return (T)Invoker.DynamicInvoke(GetArgs(args, instance));
+        }
+
+
+        public new DynamicMethodInvocation<TInstance, T> WithInstance<TInstance>(TInstance instance)
+        {
+            return new DynamicMethodInvocation<TInstance, T>()
+            {
+                Method = this,
+                Instance = instance
+            };
         }
     }
 }
