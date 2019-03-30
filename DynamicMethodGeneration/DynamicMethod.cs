@@ -2,7 +2,6 @@
 
 namespace DynamicMethodGeneration
 {
-    // TODO: Don't use DynamicInvoke. Instead use the actual delegate (ex: Action<TestClass, int, int>)
     public class DynamicMethod
     {
         internal Delegate Invoker { get; set; }
@@ -18,6 +17,26 @@ namespace DynamicMethodGeneration
                 return ArrayHelper.Prepend(args, instance);
         }
 
+        public void Invoke()
+        {
+            ((Action)Invoker)();
+        }
+
+        public void Invoke<TArg1>(TArg1 arg1)
+        {
+            ((Action<TArg1>)Invoker)(arg1);
+        }
+
+        public void Invoke<TArg1, TArg2>(TArg1 arg1, TArg2 arg2)
+        {
+            ((Action<TArg1, TArg2>)Invoker)(arg1, arg2);
+        }
+
+        public void Invoke<TArg1, TArg2, TArg3>(TArg1 arg1, TArg2 arg2, TArg3 arg3)
+        {
+            ((Action<TArg1, TArg2, TArg3>)Invoker)(arg1, arg2, arg3);
+        }
+
         public void Invoke(params object[] args)
         {
             Invoker.DynamicInvoke(GetArgs(args));
@@ -31,6 +50,26 @@ namespace DynamicMethodGeneration
 
     public class DynamicMethod<T> : DynamicMethod
     {
+        public new T Invoke()
+        {
+            return ((Func<T>)Invoker)();
+        }
+
+        public new T Invoke<TArg1>(TArg1 arg1)
+        {
+            return ((Func<TArg1, T>)Invoker)(arg1);
+        }
+
+        public new T Invoke<TArg1, TArg2>(TArg1 arg1, TArg2 arg2)
+        {
+            return ((Func<TArg1, TArg2, T>)Invoker)(arg1, arg2);
+        }
+
+        public new T Invoke<TArg1, TArg2, TArg3>(TArg1 arg1, TArg2 arg2, TArg3 arg3)
+        {
+            return ((Func<TArg1, TArg2, TArg3, T>)Invoker)(arg1, arg2, arg3);
+        }
+
         public new T Invoke(params object[] args)
         {
             return (T)Invoker.DynamicInvoke(GetArgs(args));
