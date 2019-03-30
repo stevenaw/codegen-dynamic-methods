@@ -7,9 +7,10 @@ Simplified experiment using Reflection.Emit to dynamically generate functions.
 Rather than dynamically invoking a method via Reflection, a simplified wrapper
 function is generated + created.
 
-## Demo
+## Examples
 Simply compile + invoke. Previous compilations for a `MethodInfo` are cached internally.
 
+### Static Members
 ```csharp
 public static class TestClass
 {
@@ -26,7 +27,29 @@ var compiledMethod = methodInfo.Compile();
 methodHasArgsNoReturn.Invoke(2, 5);
 ```
 
-For instance members or return types, they can be provided like so:
+### Return Types
+For members with return types, they can be provided using the generic version of `Compile<T>()`:
+
+```csharp
+public static class TestClass
+{
+    public static int MethodWithArgsAndReturn(int a, int b)
+    {
+        return a + b;
+    }
+}
+
+
+var owningType = typeof(TestClass);
+var methodInfo = owningType.GetMethod(nameof(TestClass.MethodWithArgsAndReturn));
+var compiledMethod = methodInfo.Compile<T>();
+var result = methodHasArgsNoReturn.Invoke(2, 5);
+```
+
+### Instance Members
+For instance members, the `WithInstance<T>(TInstance)` function will associate the instance of the class with
+the non-static method.
+
 ```csharp
 public class TestClass
 {
