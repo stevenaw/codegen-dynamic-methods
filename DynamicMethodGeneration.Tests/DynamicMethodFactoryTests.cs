@@ -10,7 +10,7 @@ namespace DynamicMethodGeneration.Tests
         public void GetAction_ShouldReturnInvocable(TestCaseData testCase)
         {
             var factory = new DynamicMethodFactory();
-            var method = factory.GetAction(testCase.Method, testCase.Instance);
+            var method = factory.GetAction(testCase.Method);
 
             Assert.That(method, Is.Not.Null);
 
@@ -22,7 +22,7 @@ namespace DynamicMethodGeneration.Tests
         public void GetFunction_ShouldReturnInvocable(TestCaseData testCase)
         {
             var factory = new DynamicMethodFactory();
-            var method = factory.GetFunction<int>(testCase.Method, testCase.Instance);
+            var method = factory.GetFunction<int>(testCase.Method);
 
             Assert.That(method, Is.Not.Null);
 

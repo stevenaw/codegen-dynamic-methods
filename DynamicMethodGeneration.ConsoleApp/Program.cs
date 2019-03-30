@@ -1,5 +1,4 @@
 ﻿using System;
-using DynamicMethodGeneration.Extensions;
 
 namespace DynamicMethodGeneration.ConsoleApp
 {
@@ -17,35 +16,47 @@ namespace DynamicMethodGeneration.ConsoleApp
         private static void TestInstanceFunctions()
         {
             var target = new TestInstanceClass();
+            var owningType = typeof(TestInstanceClass);
 
-            target.InvokeAction(nameof(TestInstanceClass.MethodNoArgsNoReturn));
+            // Static method /w no args and no return
+            var methodNoArgsNoReturn = owningType.GetMethod(nameof(TestInstanceClass.MethodNoArgsNoReturn)).Compile();
+            methodNoArgsNoReturn.Invoke(target);
 
-            var value = target.InvokeFunction<int>(nameof(TestInstanceClass.MethodNoArgsHasReturn));
+            // Static method /w no args and return value
+            var methodNoArgsHasReturn = owningType.GetMethod(nameof(TestInstanceClass.MethodNoArgsHasReturn)).Compile<int>();
+            var value = methodNoArgsHasReturn.Invoke(target);
             Console.WriteLine($"Return value = {value}");
 
-            target.InvokeAction(nameof(TestInstanceClass.MethodWithArgsAndNoReturn), 2, 5);
+            // Static method /w args and no return
+            var methodHasArgsNoReturn = owningType.GetMethod(nameof(TestInstanceClass.MethodWithArgsAndNoReturn)).Compile();
+            methodHasArgsNoReturn.Invoke(target, 2, 5);
 
-            value = target.InvokeFunction<int>(nameof(TestInstanceClass.MethodWithArgsAndReturn), 2, 5);
+            // Static method /w args and return value
+            var methodHasArgsHasReturn = owningType.GetMethod(nameof(TestInstanceClass.MethodWithArgsAndReturn)).Compile<int>();
+            value = methodHasArgsHasReturn.Invoke(target, 2, 5);
             Console.WriteLine($"Return value = {value}");
         }
 
         private static void TestStaticFunctions()
         {
             var owningType = typeof(TestClass);
-            var invoker = new DynamicMethodInvoker();
 
             // Static method /w no args and no return
-            invoker.InvokeAction(owningType.GetMethod(nameof(TestClass.MethodNoArgsNoReturn)));
+            var methodNoArgsNoReturn = owningType.GetMethod(nameof(TestClass.MethodNoArgsNoReturn)).Compile();
+            methodNoArgsNoReturn.Invoke();
 
             // Static method /w no args and return value
-            var value = invoker.InvokeFunction<int>(owningType.GetMethod(nameof(TestClass.MethodNoArgsHasReturn)));
+            var methodNoArgsHasReturn = owningType.GetMethod(nameof(TestClass.MethodNoArgsHasReturn)).Compile<int>();
+            var value = methodNoArgsHasReturn.Invoke();
             Console.WriteLine($"Return value = {value}");
 
             // Static method /w args and no return
-            invoker.InvokeAction(owningType.GetMethod(nameof(TestClass.MethodWithArgsAndNoReturn)), null, 2, 5);
+            var methodHasArgsNoReturn = owningType.GetMethod(nameof(TestClass.MethodWithArgsAndNoReturn)).Compile();
+            methodHasArgsNoReturn.Invoke(2, 5);
 
             // Static method /w args and return value
-            value = invoker.InvokeFunction<int>(owningType.GetMethod(nameof(TestClass.MethodWithArgsAndReturn)), null, 2, 5);
+            var methodHasArgsHasReturn = owningType.GetMethod(nameof(TestClass.MethodWithArgsAndReturn)).Compile<int>();
+            value = methodHasArgsHasReturn.Invoke(2, 5);
             Console.WriteLine($"Return value = {value}");
         }
     }

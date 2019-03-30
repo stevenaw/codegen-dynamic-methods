@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using Emit = System.Reflection.Emit;
@@ -10,9 +9,9 @@ namespace DynamicMethodGeneration
     // TODO: Verify that methodinfo found matches the args + types provided
     internal class DynamicMethodFactory
     {
-        public DynamicMethod GetAction(MethodInfo memberInfo, object instance)
+        public DynamicMethod GetAction(MethodInfo memberInfo)
         {
-            var method = GetDelegate(memberInfo, typeof(void), instance);
+            var method = GetDelegate(memberInfo, typeof(void));
             return new DynamicMethod
             {
                 Invoker = method.invoker,
@@ -20,9 +19,9 @@ namespace DynamicMethodGeneration
             };
         }
 
-        public DynamicMethod<TResult> GetFunction<TResult>(MethodInfo memberInfo, object instance)
+        public DynamicMethod<TResult> GetFunction<TResult>(MethodInfo memberInfo)
         {
-            var method = GetDelegate(memberInfo, typeof(TResult), instance);
+            var method = GetDelegate(memberInfo, typeof(TResult));
             return new DynamicMethod<TResult>
             {
                 Invoker = method.invoker,
@@ -30,13 +29,13 @@ namespace DynamicMethodGeneration
             };
         }
 
-        private (Delegate invoker, Type delegateType) GetDelegate(MethodInfo methodInfo, Type returnType, object instance)
+        private (Delegate invoker, Type delegateType) GetDelegate(MethodInfo methodInfo, Type returnType)
         {
             // TODO: Save param types to DynamicMethod so can validate invocations
             var parameterInfo = methodInfo.GetParameters();
             Type[] argTypes;
 
-            if (instance == null)
+            if (methodInfo.IsStatic)
             {
                 argTypes = new Type[parameterInfo.Length];
                 for (var i = 0; i < parameterInfo.Length; i++)
@@ -46,7 +45,7 @@ namespace DynamicMethodGeneration
             {
                 // TODO: Check if method is static before adding this
                 argTypes = new Type[parameterInfo.Length + 1];
-                argTypes[0] = instance.GetType();
+                argTypes[0] = methodInfo.DeclaringType;
                 for (var i = 0; i < parameterInfo.Length; i++)
                     argTypes[i + 1] = parameterInfo[i].ParameterType;
             }

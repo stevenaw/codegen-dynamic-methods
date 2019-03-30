@@ -3,10 +3,10 @@
 namespace DynamicMethodGeneration
 {
     // TODO: Don't use DynamicInvoke. Instead use the actual delegate (ex: Action<TestClass, int, int>)
-    internal class DynamicMethod
+    public class DynamicMethod
     {
-        public Delegate Invoker { get; set; }
-        public Type UnderlyingType { get; set; }
+        internal Delegate Invoker { get; set; }
+        internal Type UnderlyingType { get; set; }
         
         protected static object[] GetArgs(object[] args, object instance = null)
         {
@@ -29,7 +29,7 @@ namespace DynamicMethodGeneration
         }
     }
 
-    internal class DynamicMethod<T> : DynamicMethod
+    public class DynamicMethod<T> : DynamicMethod
     {
         public new T Invoke(params object[] args)
         {
