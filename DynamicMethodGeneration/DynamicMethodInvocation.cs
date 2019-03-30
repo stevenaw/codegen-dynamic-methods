@@ -10,12 +10,6 @@
             Method.Invoke(Instance);
         }
 
-        public void Invoke(object instance, params object[] args)
-        {
-            // TODO: We just ignore the member variable??
-            Method.Invoke(instance, args);
-        }
-
         public void Invoke(params object[] args)
         {
             Method.Invoke(Instance, args);
