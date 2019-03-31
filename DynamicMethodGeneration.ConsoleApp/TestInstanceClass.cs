@@ -1,11 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace DynamicMethodGeneration.ConsoleApp
 {
     public class TestInstanceClass
     {
+        public int MethodWithManyArgsAndReturn(int a, int b, int c, int d, int e, int f)
+        {
+            return a * b;
+        }
+
         public int MethodWithArgsAndReturn(int a, int b)
         {
             return a * b;

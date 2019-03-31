@@ -12,7 +12,7 @@
 
         public void Invoke(params object[] args)
         {
-            Method.Invoke(Instance, args);
+            Method.Invoke(ArrayHelper.Prepend(args, Instance));
         }
 
         public void Invoke<TArg1, TArg2, TArg3>(TArg1 arg1, TArg2 arg2, TArg3 arg3)
@@ -41,15 +41,9 @@
             return Method.Invoke(Instance);
         }
 
-        public TReturn Invoke(object instance, params object[] args)
-        {
-            // TODO: We just ignore the member variable??
-            return Method.Invoke(instance, args);
-        }
-
         public TReturn Invoke(params object[] args)
         {
-            return Method.Invoke(Instance, args);
+            return Method.Invoke(ArrayHelper.Prepend(args, Instance));
         }
 
         public TReturn Invoke<TArg1, TArg2, TArg3>(TArg1 arg1, TArg2 arg2, TArg3 arg3)

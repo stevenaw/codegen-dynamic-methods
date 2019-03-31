@@ -18,22 +18,27 @@ namespace DynamicMethodGeneration.ConsoleApp
             var target = new TestInstanceClass();
             var owningType = typeof(TestInstanceClass);
 
-            // Static method /w no args and no return
+            // Instance method /w no args and no return
             var methodNoArgsNoReturn = owningType.GetMethod(nameof(TestInstanceClass.MethodNoArgsNoReturn)).Compile();
             methodNoArgsNoReturn.WithInstance(target).Invoke();
 
-            // Static method /w no args and return value
+            // Instance method /w no args and return value
             var methodNoArgsHasReturn = owningType.GetMethod(nameof(TestInstanceClass.MethodNoArgsHasReturn)).Compile<int>();
             var value = methodNoArgsHasReturn.WithInstance(target).Invoke();
             Console.WriteLine($"Return value = {value}");
 
-            // Static method /w args and no return
+            // Instance method /w args and no return
             var methodHasArgsNoReturn = owningType.GetMethod(nameof(TestInstanceClass.MethodWithArgsAndNoReturn)).Compile();
             methodHasArgsNoReturn.WithInstance(target).Invoke(2, 5);
 
-            // Static method /w args and return value
+            // Instance method /w args and return value
             var methodHasArgsHasReturn = owningType.GetMethod(nameof(TestInstanceClass.MethodWithArgsAndReturn)).Compile<int>();
             value = methodHasArgsHasReturn.WithInstance(target).Invoke(2, 5);
+            Console.WriteLine($"Return value = {value}");
+
+            // Instance method /w args and return value as DynamicInvoke
+            var methodManyArgsHasReturn = owningType.GetMethod(nameof(TestInstanceClass.MethodWithManyArgsAndReturn)).Compile<int>();
+            value = methodManyArgsHasReturn.WithInstance(target).Invoke(2, 3, 5, 8, 13, 21);
             Console.WriteLine($"Return value = {value}");
         }
 
