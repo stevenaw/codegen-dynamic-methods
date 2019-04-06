@@ -1,5 +1,6 @@
 ﻿using NUnit.Framework;
 using System;
+using System.Linq;
 using System.Reflection;
 
 namespace DynamicMethodGeneration.Tests
@@ -37,6 +38,29 @@ namespace DynamicMethodGeneration.Tests
         }
 
 
+
+        [Test]
+        public void GenerateProperty_ShouldSetAndGetIndexer()
+        {
+            const string expectedKey = "Hello";
+            const string expectedValue = "World";
+
+            var factory = new DynamicMethodFactory();
+            var instance = new TestInstanceClass();
+            var member = typeof(TestInstanceClass)
+                .GetProperties()
+                .First(o => o.GetIndexParameters().Any());
+
+            var setRequest = DynamicMethodRequest.MakeRequest(member.SetMethod);
+            var setMethod = factory.GetAction(setRequest);
+            setMethod.Invoke(instance, expectedKey, expectedValue);
+
+            var getRequest = DynamicMethodRequest.MakeRequest(member.GetMethod);
+            var getMethod = factory.GetFunction<string>(getRequest);
+            var value = getMethod.Invoke(instance, expectedKey);
+
+            Assert.That(value, Is.EqualTo(expectedValue));
+        }
 
         [Test]
         public void GenerateProperty_ShouldGetValue()

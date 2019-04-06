@@ -1,9 +1,17 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace DynamicMethodGeneration.Tests
 {
     public class TestInstanceClass
     {
+        private Dictionary<string, string> _indexerBackingField = new Dictionary<string, string>();
+        public string this[string key]
+        {
+            get { return _indexerBackingField[key]; }
+            set { _indexerBackingField[key] = value; }
+        }
+
         public int PropertyWithoutArgument { get; set; }
 
         public int MethodWithArgsAndReturn(int a, int b)
