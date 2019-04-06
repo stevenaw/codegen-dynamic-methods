@@ -5,12 +5,12 @@ using Emit = System.Reflection.Emit;
 
 namespace DynamicMethodGeneration
 {
-    // TODO: Test support for fields, properties, etc
+    // TODO: Test support for fields, properties, indexers etc
     internal class DynamicMethodFactory
     {
-        public DynamicMethod GetAction(MethodInfo memberInfo)
+        public DynamicMethod GetAction(DynamicMethodRequest methodRequest)
         {
-            var method = GetDelegate(memberInfo, typeof(void));
+            var method = GetDelegate(methodRequest);
             return new DynamicMethod
             {
                 Invoker = method.invoker,
@@ -18,9 +18,9 @@ namespace DynamicMethodGeneration
             };
         }
 
-        public DynamicMethod<TResult> GetFunction<TResult>(MethodInfo memberInfo)
+        public DynamicMethod<TResult> GetFunction<TResult>(DynamicMethodRequest methodRequest)
         {
-            var method = GetDelegate(memberInfo, typeof(TResult));
+            var method = GetDelegate(methodRequest);
             return new DynamicMethod<TResult>
             {
                 Invoker = method.invoker,
@@ -28,12 +28,24 @@ namespace DynamicMethodGeneration
             };
         }
 
-        private (Delegate invoker, Type delegateType) GetDelegate(MethodInfo methodInfo, Type returnType)
+        internal (Delegate invoker, Type delegateType) GetDelegate(DynamicMethodRequest methodRequest)
         {
-            var parameterInfo = methodInfo.GetParameters();
+            var argTypes = GetArgTypes(methodRequest);
+            var method = new Emit.DynamicMethod(methodRequest.Member.Name, methodRequest.ReturnType, argTypes);
+            CreateMethodBody(method, methodRequest, argTypes);
+
+            var delegateType = CreateDelegateType(argTypes, methodRequest.ReturnType);
+            var invoker = method.CreateDelegate(delegateType);
+
+            return (invoker, delegateType);
+        }
+
+        internal static Type[] GetArgTypes(DynamicMethodRequest methodRequest)
+        {
+            var parameterInfo = methodRequest.Parameters;
             Type[] argTypes;
 
-            if (methodInfo.IsStatic)
+            if (methodRequest.IsStatic)
             {
                 argTypes = new Type[parameterInfo.Length];
                 for (var i = 0; i < parameterInfo.Length; i++)
@@ -42,44 +54,35 @@ namespace DynamicMethodGeneration
             else
             {
                 argTypes = new Type[parameterInfo.Length + 1];
-                argTypes[0] = methodInfo.DeclaringType;
+                argTypes[0] = methodRequest.Member.DeclaringType;
                 for (var i = 0; i < parameterInfo.Length; i++)
                     argTypes[i + 1] = parameterInfo[i].ParameterType;
             }
 
-            // TODO: Make this name dynamic ??
-            var method = new Emit.DynamicMethod(methodInfo.Name, methodInfo.ReturnType, argTypes);
-            CreateMethodBody(method, methodInfo, argTypes);
-
-            var delegateType = CreateDelegateType(argTypes, returnType);
-            var invoker = method.CreateDelegate(delegateType);
-
-            return (invoker, delegateType);
+            return argTypes;
         }
 
-        private static void CreateMethodBody(Emit.DynamicMethod dynamicMethod, MethodInfo method, Type[] args)
+        internal static void CreateMethodBody(Emit.DynamicMethod dynamicMethod, DynamicMethodRequest methodRequest, Type[] args)
         {
             var generator = dynamicMethod.GetILGenerator();
 
             for (var i = 0; i < args.Length; i++)
             {
-                var opCode = args[i].IsValueType ? OpCodes.Ldarg : OpCodes.Ldarga;
-                generator.Emit(opCode, i);
+                generator.Emit(OpCodes.Ldarg, i);
             }
 
-            if (method.IsStatic)
+            if(methodRequest.Member is MethodInfo)
             {
-                generator.EmitCall(OpCodes.Call, method, null);
-            }
-            else
-            {
-                generator.EmitCall(OpCodes.Callvirt, method, null);
+                var method = (MethodInfo)methodRequest.Member;
+                var opCode = methodRequest.IsStatic ? OpCodes.Call : OpCodes.Callvirt;
+
+                generator.EmitCall(opCode, method, null);
             }
 
             generator.Emit(OpCodes.Ret);
         }
 
-        private static Type CreateDelegateType(Type[] genericArgs, Type returnType)
+        internal static Type CreateDelegateType(Type[] genericArgs, Type returnType)
         {
             var hasReturnType = returnType != null && returnType != typeof(void);
 

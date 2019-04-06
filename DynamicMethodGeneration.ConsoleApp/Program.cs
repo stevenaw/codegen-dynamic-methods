@@ -8,9 +8,27 @@ namespace DynamicMethodGeneration.ConsoleApp
         {
             TestStaticFunctions();
             TestInstanceFunctions();
+            TestInstanceProperties();
 
             Console.Write("Please press a key...");
             Console.Read();
+        }
+
+        private static void TestInstanceProperties()
+        {
+            const int testValue = 42;
+            var target = new TestInstanceClass();
+            var owningType = typeof(TestInstanceClass);
+            var propInfo = owningType.GetProperty(nameof(TestInstanceClass.PropertyWithoutArgument));
+
+
+            var setter = propInfo.CompileSetter();
+            var getter = propInfo.CompileGetter<int>();
+
+            setter.WithInstance(target).Invoke(testValue);
+            var value = getter.WithInstance(target).Invoke();
+
+            Console.WriteLine($"Return value = {value}");
         }
 
         private static void TestInstanceFunctions()

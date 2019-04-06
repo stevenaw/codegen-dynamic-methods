@@ -4,6 +4,7 @@ namespace DynamicMethodGeneration.ConsoleApp
 {
     public class TestInstanceClass
     {
+        public int PropertyWithoutArgument { get; set; }
         public int MethodWithManyArgsAndReturn(int a, int b, int c, int d, int e, int f)
         {
             return a * b;

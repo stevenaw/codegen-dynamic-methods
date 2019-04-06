@@ -42,7 +42,7 @@ public static class TestClass
 
 var owningType = typeof(TestClass);
 var methodInfo = owningType.GetMethod(nameof(TestClass.MethodWithArgsAndReturn));
-var compiledMethod = methodInfo.Compile<T>();
+var compiledMethod = methodInfo.Compile<int>();
 var result = methodHasArgsNoReturn.Invoke(2, 5);
 ```
 

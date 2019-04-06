@@ -5,7 +5,7 @@ namespace DynamicMethodGeneration
 {
     internal class DynamicMethodCache
     {
-        private Dictionary<MethodInfo, DynamicMethod> _cache = new Dictionary<MethodInfo, DynamicMethod>();
+        private Dictionary<MemberInfo, DynamicMethod> _cache = new Dictionary<MemberInfo, DynamicMethod>();
 
         public void Add(MethodInfo methodInfo, DynamicMethod method)
         {

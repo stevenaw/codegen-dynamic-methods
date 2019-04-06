@@ -1,4 +1,6 @@
 ﻿using NUnit.Framework;
+using System;
+using System.Reflection;
 
 namespace DynamicMethodGeneration.Tests
 {
@@ -6,146 +8,82 @@ namespace DynamicMethodGeneration.Tests
     // TODO: Failure tests where invalid number of params are passed
     public partial class DynamicMethodFactoryTests
     {
-        [TestCaseSource(nameof(ActionTestCases))]
-        public void GetAction_ShouldReturnInvocable(TestCaseData testCase)
+        [TestCaseSource(typeof(TestCases), nameof(TestCases.ActionTestCases))]
+        public void GetAction_ShouldReturnInvocable(TestCaseData<MethodInfo> testCase)
         {
             var factory = new DynamicMethodFactory();
-            var method = factory.GetAction(testCase.Method);
+            var methodRequest  = DynamicMethodRequest.MakeRequest(testCase.Method);
+            var method = factory.GetAction(methodRequest);
 
             Assert.That(method, Is.Not.Null);
 
-            var methodArgs = GetArgs(testCase.Args, testCase.Instance);
+            var methodArgs = TestHelper.GetArgs(testCase.Args, testCase.Instance);
             method.Invoker.DynamicInvoke(methodArgs);
         }
 
-        [TestCaseSource(nameof(FunctionTestCases))]
-        public void GetFunction_ShouldReturnInvocable(TestCaseData testCase)
+        [TestCaseSource(typeof(TestCases), nameof(TestCases.FunctionTestCases))]
+        public void GetFunction_ShouldReturnInvocable(TestCaseData<MethodInfo> testCase)
         {
             var factory = new DynamicMethodFactory();
-            var method = factory.GetFunction<int>(testCase.Method);
+            var methodRequest = DynamicMethodRequest.MakeRequest(testCase.Method);
+            var method = factory.GetFunction<int>(methodRequest);
 
             Assert.That(method, Is.Not.Null);
 
-            var methodArgs = GetArgs(testCase.Args, testCase.Instance);
+            var methodArgs = TestHelper.GetArgs(testCase.Args, testCase.Instance);
             var result = (int)method.Invoker.DynamicInvoke(methodArgs);
 
             Assert.That(result, Is.EqualTo(testCase.ExpectedResult));
         }
 
-        private static object[] GetArgs(object[] args, object instance)
+
+
+        [Test]
+        public void GenerateProperty_ShouldGetValue()
         {
-            if (instance == null)
-                return args ?? new object[0];
-            else if (args == null)
-                return new object[] { instance };
-            else
-                return ArrayHelper.Prepend(args, instance);
+            var factory = new DynamicMethodFactory();
+            var instance = new TestInstanceClass() { PropertyWithoutArgument = 3 };
+            var member = typeof(TestInstanceClass).GetProperty(nameof(TestInstanceClass.PropertyWithoutArgument));
+
+            var getRequest = DynamicMethodRequest.MakeRequest(member.GetMethod);
+            var getMethod = factory.GetFunction<int>(getRequest);
+            var methodFunc = (Func<TestInstanceClass, int>)getMethod.Invoker;
+
+            var result = methodFunc(instance);
+            Assert.That(result, Is.EqualTo(instance.PropertyWithoutArgument));
         }
 
-        public static TestCaseData[] ActionTestCases
+        [Test]
+        public void GenerateProperty_ShouldSetValue()
         {
-            get
-            {
-                return new TestCaseData[]
-                {
-                    // Static
-                    new TestCaseData()
-                    {
-                        Method = typeof(TestStaticClass).GetMethod(nameof(TestStaticClass.MethodNoArgsNoReturn)),
-                        Args = null
-                    },
-                    new TestCaseData()
-                    {
-                        Method = typeof(TestStaticClass).GetMethod(nameof(TestStaticClass.MethodNoArgsNoReturn)),
-                        Args = new object[0]
-                    },
-                    new TestCaseData()
-                    {
-                        Method = typeof(TestStaticClass).GetMethod(nameof(TestStaticClass.MethodWithArgsAndNoReturn)),
-                        Args = new object[]
-                        {
-                            2,
-                            5
-                        }
-                    },
+            var factory = new DynamicMethodFactory();
+            var instance = new TestInstanceClass();
+            var member = typeof(TestInstanceClass).GetProperty(nameof(TestInstanceClass.PropertyWithoutArgument));
 
-                    // Instance
-                    new TestCaseData()
-                    {
-                        Instance = new TestInstanceClass(),
-                        Method = typeof(TestInstanceClass).GetMethod(nameof(TestInstanceClass.MethodNoArgsNoReturn)),
-                        Args = null
-                    },
-                    new TestCaseData()
-                    {
-                        Instance = new TestInstanceClass(),
-                        Method = typeof(TestInstanceClass).GetMethod(nameof(TestInstanceClass.MethodNoArgsNoReturn)),
-                        Args = new object[0]
-                    },
-                    new TestCaseData()
-                    {
-                        Instance = new TestInstanceClass(),
-                        Method = typeof(TestInstanceClass).GetMethod(nameof(TestInstanceClass.MethodWithArgsAndNoReturn)),
-                        Args = new object[]
-                        {
-                            2,
-                            5
-                        }
-                    }
-                };
-            }
+            var setRequest = DynamicMethodRequest.MakeRequest(member.SetMethod);
+
+            var setMethod = factory.GetAction(setRequest);
+            var methodFunc = (Action<TestInstanceClass, int>)setMethod.Invoker;
+
+            methodFunc(instance, 3);
+            Assert.That(instance.PropertyWithoutArgument, Is.EqualTo(3));
         }
 
-        public static TestCaseData[] FunctionTestCases
+        [TestCaseSource(typeof(TestCases), nameof(TestCases.PropertyTestCases))]
+        public void GenerateProperty_ShouldBeBidirectional(TestCaseData<PropertyInfo> testCase)
         {
-            get
-            {
-                return new TestCaseData[]
-                {
-                    // Static
-                    new TestCaseData()
-                    {
-                        Method = typeof(TestStaticClass).GetMethod(nameof(TestStaticClass.MethodNoArgsHasReturn)),
-                        Args = null,
-                        ExpectedResult = TestStaticClass.MethodNoArgsHasReturn()
-                    },
-                    new TestCaseData()
-                    {
-                        Method = typeof(TestStaticClass).GetMethod(nameof(TestStaticClass.MethodNoArgsHasReturn)),
-                        Args = new object[0],
-                        ExpectedResult = TestStaticClass.MethodNoArgsHasReturn()
-                    },
-                    new TestCaseData()
-                    {
-                        Method = typeof(TestStaticClass).GetMethod(nameof(TestStaticClass.MethodWithArgsAndReturn)),
-                        Args = new object[] { 2, 5 },
-                        ExpectedResult = TestStaticClass.MethodWithArgsAndReturn(2, 5)
-                    },
+            var factory = new DynamicMethodFactory();
+            var expectedResult = (int)testCase.Args[0];
 
-                    // Instance
-                    new TestCaseData()
-                    {
-                        Instance = new TestInstanceClass(),
-                        Method = typeof(TestInstanceClass).GetMethod(nameof(TestInstanceClass.MethodNoArgsHasReturn)),
-                        Args = null,
-                        ExpectedResult = new TestInstanceClass().MethodNoArgsHasReturn()
-                    },
-                    new TestCaseData()
-                    {
-                        Instance = new TestInstanceClass(),
-                        Method = typeof(TestInstanceClass).GetMethod(nameof(TestInstanceClass.MethodNoArgsHasReturn)),
-                        Args = new object[0],
-                        ExpectedResult = new TestInstanceClass().MethodNoArgsHasReturn()
-                    },
-                    new TestCaseData()
-                    {
-                        Instance = new TestInstanceClass(),
-                        Method = typeof(TestInstanceClass).GetMethod(nameof(TestInstanceClass.MethodWithArgsAndReturn)),
-                        Args = new object[] { 2, 5 },
-                        ExpectedResult = new TestInstanceClass().MethodWithArgsAndReturn(2, 5)
-                    }
-                };
-            }
+            var setRequest = DynamicMethodRequest.MakeRequest(testCase.Method.SetMethod);
+            var setMethod = factory.GetAction(setRequest);
+            setMethod.Invoke((TestInstanceClass)testCase.Instance, expectedResult);
+
+            var getRequest = DynamicMethodRequest.MakeRequest(testCase.Method.GetMethod);
+            var getMethod = factory.GetFunction<int>(getRequest);
+            var result = getMethod.Invoke((TestInstanceClass)testCase.Instance);
+
+            Assert.That(result, Is.EqualTo(expectedResult));
         }
     }
 }

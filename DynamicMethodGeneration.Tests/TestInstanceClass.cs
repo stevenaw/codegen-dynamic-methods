@@ -4,6 +4,8 @@ namespace DynamicMethodGeneration.Tests
 {
     public class TestInstanceClass
     {
+        public int PropertyWithoutArgument { get; set; }
+
         public int MethodWithArgsAndReturn(int a, int b)
         {
             return a * b;
