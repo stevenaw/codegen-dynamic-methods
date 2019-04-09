@@ -9,9 +9,12 @@ namespace DynamicMethodGeneration.ConsoleApp
             TestStaticFunctions();
             TestInstanceFunctions();
             TestInstanceProperties();
+            TestInstanceFields();
 
+#if !(DEBUG)
             Console.Write("Please press a key...");
             Console.Read();
+#endif
         }
 
         private static void TestInstanceProperties()
@@ -28,7 +31,24 @@ namespace DynamicMethodGeneration.ConsoleApp
             setter.WithInstance(target).Invoke(testValue);
             var value = getter.WithInstance(target).Invoke();
 
-            Console.WriteLine($"Return value = {value}");
+            Console.WriteLine($"Return value of prop = {value}");
+        }
+
+        private static void TestInstanceFields()
+        {
+            const int testValue = 42;
+            var target = new TestInstanceClass();
+            var owningType = typeof(TestInstanceClass);
+            var propInfo = owningType.GetField(nameof(TestInstanceClass.FieldTest));
+
+
+            var setter = propInfo.CompileSetter();
+            var getter = propInfo.CompileGetter<int>();
+
+            setter.WithInstance(target).Invoke(testValue);
+            var value = getter.WithInstance(target).Invoke();
+
+            Console.WriteLine($"Return value of field = {value}");
         }
 
         private static void TestInstanceFunctions()

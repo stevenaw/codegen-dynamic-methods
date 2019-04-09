@@ -5,9 +5,10 @@ namespace DynamicMethodGeneration.ConsoleApp
 {
     public class TestInstanceClass
     {
+        public int FieldTest;
         public int PropertyWithoutArgument { get; set; }
 
-        private Dictionary<string, string> _indexerBackingField;
+        private Dictionary<string, string> _indexerBackingField = new Dictionary<string, string>();
         public string this[string key]
         {
             get { return _indexerBackingField[key]; }

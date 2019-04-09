@@ -4,6 +4,10 @@ namespace DynamicMethodGeneration.Tests
 {
     public static class TestStaticClass
     {
+        public static int FieldTest;
+
+        public static int PropertyWithoutArgument { get; set; }
+
         public static int MethodWithArgsAndReturn(int a, int b)
         {
             return a * b;

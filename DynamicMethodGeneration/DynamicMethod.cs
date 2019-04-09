@@ -43,37 +43,39 @@ namespace DynamicMethodGeneration
         }
     }
 
-    public class DynamicMethod<T> : DynamicMethod, IDynamicMethod<T>
+    public class DynamicMethod<TReturn> : IDynamicMethod<TReturn>
     {
-        public new T Invoke()
+        internal Delegate Invoker { get; set; }
+        internal Type UnderlyingType { get; set; }
+
+        public TReturn Invoke()
         {
-            return ((Func<T>)Invoker)();
+            return ((Func<TReturn>)Invoker)();
         }
 
-        public new T Invoke<TArg1>(TArg1 arg1)
+        public TReturn Invoke<TArg1>(TArg1 arg1)
         {
-            return ((Func<TArg1, T>)Invoker)(arg1);
+            return ((Func<TArg1, TReturn>)Invoker)(arg1);
         }
 
-        public new T Invoke<TArg1, TArg2>(TArg1 arg1, TArg2 arg2)
+        public TReturn Invoke<TArg1, TArg2>(TArg1 arg1, TArg2 arg2)
         {
-            return ((Func<TArg1, TArg2, T>)Invoker)(arg1, arg2);
+            return ((Func<TArg1, TArg2, TReturn>)Invoker)(arg1, arg2);
         }
 
-        public new T Invoke<TArg1, TArg2, TArg3>(TArg1 arg1, TArg2 arg2, TArg3 arg3)
+        public TReturn Invoke<TArg1, TArg2, TArg3>(TArg1 arg1, TArg2 arg2, TArg3 arg3)
         {
-            return ((Func<TArg1, TArg2, TArg3, T>)Invoker)(arg1, arg2, arg3);
+            return ((Func<TArg1, TArg2, TArg3, TReturn>)Invoker)(arg1, arg2, arg3);
         }
 
-        public new T Invoke(params object[] args)
+        public TReturn Invoke(params object[] args)
         {
-            return (T)Invoker.DynamicInvoke(args);
+            return (TReturn)Invoker.DynamicInvoke(args);
         }
 
-
-        public new DynamicMethodInvocation<TInstance, T> WithInstance<TInstance>(TInstance instance)
+        public DynamicMethodInvocation<TInstance, TReturn> WithInstance<TInstance>(TInstance instance)
         {
-            return new DynamicMethodInvocation<TInstance, T>()
+            return new DynamicMethodInvocation<TInstance, TReturn>()
             {
                 Method = this,
                 Instance = instance

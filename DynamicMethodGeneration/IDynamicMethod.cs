@@ -1,6 +1,11 @@
 ﻿namespace DynamicMethodGeneration
 {
-    public interface IDynamicMethod
+    public interface IMethod
+    {
+
+    }
+
+    public interface IDynamicMethod : IMethod
     {
         void Invoke();
         void Invoke(params object[] args);
@@ -9,12 +14,12 @@
         void Invoke<TArg1>(TArg1 arg1);
     }
 
-    public interface IDynamicMethod<T>
+    public interface IDynamicMethod<TReturn> : IMethod
     {
-        T Invoke();
-        T Invoke(params object[] args);
-        T Invoke<TArg1, TArg2, TArg3>(TArg1 arg1, TArg2 arg2, TArg3 arg3);
-        T Invoke<TArg1, TArg2>(TArg1 arg1, TArg2 arg2);
-        T Invoke<TArg1>(TArg1 arg1);
+        TReturn Invoke();
+        TReturn Invoke(params object[] args);
+        TReturn Invoke<TArg1, TArg2, TArg3>(TArg1 arg1, TArg2 arg2, TArg3 arg3);
+        TReturn Invoke<TArg1, TArg2>(TArg1 arg1, TArg2 arg2);
+        TReturn Invoke<TArg1>(TArg1 arg1);
     }
 }

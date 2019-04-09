@@ -5,6 +5,8 @@ namespace DynamicMethodGeneration.Tests
 {
     public class TestInstanceClass
     {
+        public int FieldTest;
+
         private Dictionary<string, string> _indexerBackingField = new Dictionary<string, string>();
         public string this[string key]
         {

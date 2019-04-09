@@ -97,15 +97,67 @@ namespace DynamicMethodGeneration.Tests
         public void GenerateProperty_ShouldBeBidirectional(TestCaseData<PropertyInfo> testCase)
         {
             var factory = new DynamicMethodFactory();
-            var expectedResult = (int)testCase.Args[0];
+            var expectedResult = testCase.Args.Last();
 
             var setRequest = DynamicMethodRequest.MakeRequest(testCase.Method.SetMethod);
             var setMethod = factory.GetAction(setRequest);
-            setMethod.Invoke((TestInstanceClass)testCase.Instance, expectedResult);
+            var setArgs = TestHelper.GetArgs(testCase.Args, testCase.Instance);
+            setMethod.Invoke(setArgs);
 
             var getRequest = DynamicMethodRequest.MakeRequest(testCase.Method.GetMethod);
             var getMethod = factory.GetFunction<int>(getRequest);
-            var result = getMethod.Invoke((TestInstanceClass)testCase.Instance);
+            var getArgs = TestHelper.GetArgs(null, testCase.Instance);
+            var result = getMethod.Invoke(getArgs);
+
+            Assert.That(result, Is.EqualTo(expectedResult));
+        }
+
+        [Test]
+        public void GenerateField_ShouldGetValue()
+        {
+            var factory = new DynamicMethodFactory();
+            var instance = new TestInstanceClass() { FieldTest = 3 };
+            var member = typeof(TestInstanceClass).GetField(nameof(TestInstanceClass.FieldTest));
+
+            var getRequest = DynamicMethodRequest.MakeGetterRequest(member);
+            var getMethod = factory.GetFunction<int>(getRequest);
+            var methodFunc = (Func<TestInstanceClass, int>)getMethod.Invoker;
+
+            var result = methodFunc(instance);
+            Assert.That(result, Is.EqualTo(instance.FieldTest));
+        }
+
+        [Test]
+        public void GenerateField_ShouldSetValue()
+        {
+            var factory = new DynamicMethodFactory();
+            var instance = new TestInstanceClass();
+            var member = typeof(TestInstanceClass).GetField(nameof(TestInstanceClass.FieldTest));
+
+            var setRequest = DynamicMethodRequest.MakeSetterRequest(member);
+            var setMethod = factory.GetAction(setRequest);
+            var methodFunc = (Action<TestInstanceClass, int>)setMethod.Invoker;
+
+            methodFunc(instance, 3);
+            Assert.That(instance.FieldTest, Is.EqualTo(3));
+        }
+
+
+        [TestCaseSource(typeof(TestCases), nameof(TestCases.FieldTestCases))]
+        public void GenerateField_ShouldBeBidirectional(TestCaseData<FieldInfo> testCase)
+        {
+            var factory = new DynamicMethodFactory();
+            var expectedResult = testCase.Args.Last();
+
+            var setRequest = DynamicMethodRequest.MakeSetterRequest(testCase.Method);
+            var setMethod = factory.GetAction(setRequest);
+            var setArgs = TestHelper.GetArgs(testCase.Args, testCase.Instance);
+            setMethod.Invoke(setArgs);
+
+            var getRequest = DynamicMethodRequest.MakeGetterRequest(testCase.Method);
+            var getMethod = factory.GetFunction<int>(getRequest);
+            var getArgs = TestHelper.GetArgs(null, testCase.Instance);
+            var result = getMethod.Invoke(getArgs);
 
             Assert.That(result, Is.EqualTo(expectedResult));
         }

@@ -5,7 +5,7 @@ using Emit = System.Reflection.Emit;
 
 namespace DynamicMethodGeneration
 {
-    // TODO: Test support for fields, properties, indexers etc
+    // TODO: Test support for structs
     internal class DynamicMethodFactory
     {
         public DynamicMethod GetAction(DynamicMethodRequest methodRequest)
@@ -42,24 +42,20 @@ namespace DynamicMethodGeneration
 
         internal static Type[] GetArgTypes(DynamicMethodRequest methodRequest)
         {
-            var parameterInfo = methodRequest.Parameters;
-            Type[] argTypes;
-
             if (methodRequest.IsStatic)
             {
-                argTypes = new Type[parameterInfo.Length];
-                for (var i = 0; i < parameterInfo.Length; i++)
-                    argTypes[i] = parameterInfo[i].ParameterType;
+                return methodRequest.ParameterTypes;
             }
             else
             {
-                argTypes = new Type[parameterInfo.Length + 1];
-                argTypes[0] = methodRequest.Member.DeclaringType;
-                for (var i = 0; i < parameterInfo.Length; i++)
-                    argTypes[i + 1] = parameterInfo[i].ParameterType;
-            }
+                var argTypes = new Type[methodRequest.ParameterTypes.Length + 1];
 
-            return argTypes;
+                argTypes[0] = methodRequest.Member.DeclaringType;
+
+                Array.Copy(methodRequest.ParameterTypes, 0, argTypes, 1, methodRequest.ParameterTypes.Length);
+
+                return argTypes;
+            }
         }
 
         internal static void CreateMethodBody(Emit.DynamicMethod dynamicMethod, DynamicMethodRequest methodRequest, Type[] args)
@@ -71,12 +67,22 @@ namespace DynamicMethodGeneration
                 generator.Emit(OpCodes.Ldarg, i);
             }
 
-            if(methodRequest.Member is MethodInfo)
+            if (methodRequest.Member is MethodInfo)
             {
                 var method = (MethodInfo)methodRequest.Member;
                 var opCode = methodRequest.IsStatic ? OpCodes.Call : OpCodes.Callvirt;
 
                 generator.EmitCall(opCode, method, null);
+            }
+            else if (methodRequest.Member is FieldInfo)
+            {
+                var method = (FieldInfo)methodRequest.Member;
+                var isInput = methodRequest.DataFlowDirection == DataFlowDirection.Input;
+                var opCode = methodRequest.IsStatic
+                    ? (isInput ? OpCodes.Stsfld : OpCodes.Ldsfld)
+                    : (isInput ? OpCodes.Stfld : OpCodes.Ldfld);
+
+                generator.Emit(opCode, method);
             }
 
             generator.Emit(OpCodes.Ret);

@@ -5,15 +5,15 @@ namespace DynamicMethodGeneration
 {
     internal class DynamicMethodCache
     {
-        private Dictionary<MemberInfo, DynamicMethod> _cache = new Dictionary<MemberInfo, DynamicMethod>();
+        private Dictionary<MemberInfo, IMethod> _cache = new Dictionary<MemberInfo, IMethod>();
 
-        public void Add(MethodInfo methodInfo, DynamicMethod method)
+        public void Add(MemberInfo methodInfo, IMethod method)
         {
             if (!_cache.ContainsKey(methodInfo))
                 _cache.Add(methodInfo, method);
         }
 
-        public DynamicMethod Get(MethodInfo methodInfo)
+        public IMethod Get(MemberInfo methodInfo)
         {
             if (!_cache.ContainsKey(methodInfo))
                 return null;

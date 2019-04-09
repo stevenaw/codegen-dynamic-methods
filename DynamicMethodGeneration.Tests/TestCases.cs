@@ -124,6 +124,32 @@ namespace DynamicMethodGeneration.Tests
                         Instance = new TestInstanceClass(),
                         Method = typeof(TestInstanceClass).GetProperty(nameof(TestInstanceClass.PropertyWithoutArgument)),
                         Args = new object[] { 2 }
+                    },
+                    new TestCaseData<PropertyInfo>()
+                    {
+                        Method = typeof(TestStaticClass).GetProperty(nameof(TestStaticClass.PropertyWithoutArgument)),
+                        Args = new object[] { 2 }
+                    }
+                };
+            }
+        }
+
+        public static TestCaseData<FieldInfo>[] FieldTestCases
+        {
+            get
+            {
+                return new TestCaseData<FieldInfo>[]
+                {
+                    new TestCaseData<FieldInfo>()
+                    {
+                        Instance = new TestInstanceClass(),
+                        Method = typeof(TestInstanceClass).GetField(nameof(TestInstanceClass.FieldTest)),
+                        Args = new object[] { 2 }
+                    },
+                    new TestCaseData<FieldInfo>()
+                    {
+                        Method = typeof(TestStaticClass).GetField(nameof(TestStaticClass.FieldTest)),
+                        Args = new object[] { 2 }
                     }
                 };
             }
