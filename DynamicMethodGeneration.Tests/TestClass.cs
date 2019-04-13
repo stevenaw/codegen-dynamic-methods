@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace DynamicMethodGeneration.Tests
 {
-    public class TestInstanceClass
+    public class TestClass
     {
         public int FieldTest;
 
@@ -14,7 +14,7 @@ namespace DynamicMethodGeneration.Tests
             set { _indexerBackingField[key] = value; }
         }
 
-        public int PropertyWithoutArgument { get; set; }
+        public int PropertyTest { get; set; }
 
         public int MethodWithArgsAndReturn(int a, int b)
         {
@@ -32,6 +32,31 @@ namespace DynamicMethodGeneration.Tests
         }
 
         public void MethodNoArgsNoReturn()
+        {
+            Console.WriteLine("Hello World!");
+        }
+
+
+        public static int StaticFieldTest;
+
+        public static int StaticPropertyTest { get; set; }
+
+        public static int StaticMethodWithArgsAndReturn(int a, int b)
+        {
+            return a * b;
+        }
+
+        public static void StaticMethodWithArgsAndNoReturn(int a, int b)
+        {
+            Console.WriteLine($"Output is {a + b}");
+        }
+
+        public static int StaticMethodNoArgsHasReturn()
+        {
+            return 42;
+        }
+
+        public static void StaticMethodNoArgsNoReturn()
         {
             Console.WriteLine("Hello World!");
         }

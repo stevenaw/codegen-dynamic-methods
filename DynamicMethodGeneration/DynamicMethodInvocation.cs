@@ -36,29 +36,29 @@
         public DynamicMethod<TReturn> Method { get; internal set; }
         public TInstance Instance { get; internal set; }
 
-        public TReturn Invoke()
+        public TReturn InvokeAndReturn()
         {
-            return Method.Invoke(Instance);
+            return Method.InvokeAndReturn(Instance);
         }
 
-        public TReturn Invoke(params object[] args)
+        public TReturn InvokeAndReturn(params object[] args)
         {
-            return Method.Invoke(ArrayHelper.Prepend(args, Instance));
+            return Method.InvokeAndReturn(ArrayHelper.Prepend(args, Instance));
         }
 
-        public TReturn Invoke<TArg1, TArg2, TArg3>(TArg1 arg1, TArg2 arg2, TArg3 arg3)
+        public TReturn InvokeAndReturn<TArg1, TArg2, TArg3>(TArg1 arg1, TArg2 arg2, TArg3 arg3)
         {
-            return Method.Invoke(Instance, arg1, arg2, arg3);
+            return Method.InvokeAndReturn(Instance, arg1, arg2, arg3);
         }
 
-        public TReturn Invoke<TArg1, TArg2>(TArg1 arg1, TArg2 arg2)
+        public TReturn InvokeAndReturn<TArg1, TArg2>(TArg1 arg1, TArg2 arg2)
         {
-            return Method.Invoke(Instance, arg1, arg2);
+            return Method.InvokeAndReturn(Instance, arg1, arg2);
         }
 
-        public TReturn Invoke<TArg1>(TArg1 arg1)
+        public TReturn InvokeAndReturn<TArg1>(TArg1 arg1)
         {
-            return Method.Invoke(Instance, arg1);
+            return Method.InvokeAndReturn(Instance, arg1);
         }
     }
 }

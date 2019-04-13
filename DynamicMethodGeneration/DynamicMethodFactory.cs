@@ -5,7 +5,7 @@ using Emit = System.Reflection.Emit;
 
 namespace DynamicMethodGeneration
 {
-    // TODO: Test support for structs
+    // TODO: varargs/params
     internal class DynamicMethodFactory
     {
         public DynamicMethod GetAction(DynamicMethodRequest methodRequest)
@@ -14,7 +14,8 @@ namespace DynamicMethodGeneration
             return new DynamicMethod
             {
                 Invoker = method.invoker,
-                UnderlyingType = method.delegateType
+                DeclaringType = method.declaringType,
+                ArgumentTypes = method.argTypes,
             };
         }
 
@@ -24,12 +25,15 @@ namespace DynamicMethodGeneration
             return new DynamicMethod<TResult>
             {
                 Invoker = method.invoker,
-                UnderlyingType = method.delegateType
+                DeclaringType = method.declaringType,
+                ArgumentTypes = method.argTypes,
             };
         }
 
-        internal (Delegate invoker, Type delegateType) GetDelegate(DynamicMethodRequest methodRequest)
+        internal (Delegate invoker, Type[] argTypes, Type declaringType) GetDelegate(DynamicMethodRequest methodRequest)
         {
+            var declaringType = methodRequest.Member.DeclaringType;
+
             var argTypes = GetArgTypes(methodRequest);
             var method = new Emit.DynamicMethod(methodRequest.Member.Name, methodRequest.ReturnType, argTypes);
             CreateMethodBody(method, methodRequest, argTypes);
@@ -37,7 +41,7 @@ namespace DynamicMethodGeneration
             var delegateType = CreateDelegateType(argTypes, methodRequest.ReturnType);
             var invoker = method.CreateDelegate(delegateType);
 
-            return (invoker, delegateType);
+            return (invoker, argTypes, declaringType);
         }
 
         internal static Type[] GetArgTypes(DynamicMethodRequest methodRequest)
@@ -119,6 +123,9 @@ namespace DynamicMethodGeneration
                     break;
                 case 7:
                     baseType = hasReturnType ? typeof(Func<,,,,,,,>) : typeof(Action<,,,,,,>);
+                    break;
+                case 8:
+                    baseType = hasReturnType ? typeof(Func<,,,,,,,,>) : typeof(Action<,,,,,,,>);
                     break;
             }
 

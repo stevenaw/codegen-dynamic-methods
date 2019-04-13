@@ -16,10 +16,10 @@
 
     public interface IDynamicMethod<TReturn> : IMethod
     {
-        TReturn Invoke();
-        TReturn Invoke(params object[] args);
-        TReturn Invoke<TArg1, TArg2, TArg3>(TArg1 arg1, TArg2 arg2, TArg3 arg3);
-        TReturn Invoke<TArg1, TArg2>(TArg1 arg1, TArg2 arg2);
-        TReturn Invoke<TArg1>(TArg1 arg1);
+        TReturn InvokeAndReturn();
+        TReturn InvokeAndReturn(params object[] args);
+        TReturn InvokeAndReturn<TArg1, TArg2, TArg3>(TArg1 arg1, TArg2 arg2, TArg3 arg3);
+        TReturn InvokeAndReturn<TArg1, TArg2>(TArg1 arg1, TArg2 arg2);
+        TReturn InvokeAndReturn<TArg1>(TArg1 arg1);
     }
 }

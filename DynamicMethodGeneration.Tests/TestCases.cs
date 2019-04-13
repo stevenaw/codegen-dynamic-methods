@@ -16,17 +16,37 @@ namespace DynamicMethodGeneration.Tests
                     // Static
                     new TestCaseData<MethodInfo>()
                     {
-                        Method = typeof(TestStaticClass).GetMethod(nameof(TestStaticClass.MethodNoArgsNoReturn)),
+                        Method = typeof(TestClass).GetMethod(nameof(TestClass.StaticMethodNoArgsNoReturn)),
                         Args = null
                     },
                     new TestCaseData<MethodInfo>()
                     {
-                        Method = typeof(TestStaticClass).GetMethod(nameof(TestStaticClass.MethodNoArgsNoReturn)),
+                        Method = typeof(TestClass).GetMethod(nameof(TestClass.StaticMethodNoArgsNoReturn)),
                         Args = new object[0]
                     },
                     new TestCaseData<MethodInfo>()
                     {
-                        Method = typeof(TestStaticClass).GetMethod(nameof(TestStaticClass.MethodWithArgsAndNoReturn)),
+                        Method = typeof(TestClass).GetMethod(nameof(TestClass.StaticMethodWithArgsAndNoReturn)),
+                        Args = new object[]
+                        {
+                            2,
+                            5
+                        }
+                    },
+
+                    new TestCaseData<MethodInfo>()
+                    {
+                        Method = typeof(TestStruct).GetMethod(nameof(TestStruct.StaticMethodNoArgsNoReturn)),
+                        Args = null
+                    },
+                    new TestCaseData<MethodInfo>()
+                    {
+                        Method = typeof(TestStruct).GetMethod(nameof(TestStruct.StaticMethodNoArgsNoReturn)),
+                        Args = new object[0]
+                    },
+                    new TestCaseData<MethodInfo>()
+                    {
+                        Method = typeof(TestStruct).GetMethod(nameof(TestStruct.StaticMethodWithArgsAndNoReturn)),
                         Args = new object[]
                         {
                             2,
@@ -37,20 +57,43 @@ namespace DynamicMethodGeneration.Tests
                     // Instance
                     new TestCaseData<MethodInfo>()
                     {
-                        Instance = new TestInstanceClass(),
-                        Method = typeof(TestInstanceClass).GetMethod(nameof(TestInstanceClass.MethodNoArgsNoReturn)),
+                        Instance = new TestClass(),
+                        Method = typeof(TestClass).GetMethod(nameof(TestClass.MethodNoArgsNoReturn)),
                         Args = null
                     },
                     new TestCaseData<MethodInfo>()
                     {
-                        Instance = new TestInstanceClass(),
-                        Method = typeof(TestInstanceClass).GetMethod(nameof(TestInstanceClass.MethodNoArgsNoReturn)),
+                        Instance = new TestClass(),
+                        Method = typeof(TestClass).GetMethod(nameof(TestClass.MethodNoArgsNoReturn)),
                         Args = new object[0]
                     },
                     new TestCaseData<MethodInfo>()
                     {
-                        Instance = new TestInstanceClass(),
-                        Method = typeof(TestInstanceClass).GetMethod(nameof(TestInstanceClass.MethodWithArgsAndNoReturn)),
+                        Instance = new TestClass(),
+                        Method = typeof(TestClass).GetMethod(nameof(TestClass.MethodWithArgsAndNoReturn)),
+                        Args = new object[]
+                        {
+                            2,
+                            5
+                        }
+                    },
+
+                    new TestCaseData<MethodInfo>()
+                    {
+                        Instance = new TestStruct(),
+                        Method = typeof(TestStruct).GetMethod(nameof(TestStruct.MethodNoArgsNoReturn)),
+                        Args = null
+                    },
+                    new TestCaseData<MethodInfo>()
+                    {
+                        Instance = new TestStruct(),
+                        Method = typeof(TestStruct).GetMethod(nameof(TestStruct.MethodNoArgsNoReturn)),
+                        Args = new object[0]
+                    },
+                    new TestCaseData<MethodInfo>()
+                    {
+                        Instance = new TestStruct(),
+                        Method = typeof(TestStruct).GetMethod(nameof(TestStruct.MethodWithArgsAndNoReturn)),
                         Args = new object[]
                         {
                             2,
@@ -70,44 +113,85 @@ namespace DynamicMethodGeneration.Tests
                     // Static
                     new TestCaseData<MethodInfo>()
                     {
-                        Method = typeof(TestStaticClass).GetMethod(nameof(TestStaticClass.MethodNoArgsHasReturn)),
+                        Method = typeof(TestClass).GetMethod(nameof(TestClass.StaticMethodNoArgsHasReturn)),
                         Args = null,
-                        ExpectedResult = TestStaticClass.MethodNoArgsHasReturn()
+                        ExpectedResult = TestClass.StaticMethodNoArgsHasReturn()
                     },
                     new TestCaseData<MethodInfo>()
                     {
-                        Method = typeof(TestStaticClass).GetMethod(nameof(TestStaticClass.MethodNoArgsHasReturn)),
+                        Method = typeof(TestClass).GetMethod(nameof(TestClass.StaticMethodNoArgsHasReturn)),
                         Args = new object[0],
-                        ExpectedResult = TestStaticClass.MethodNoArgsHasReturn()
+                        ExpectedResult = TestClass.StaticMethodNoArgsHasReturn()
                     },
                     new TestCaseData<MethodInfo>()
                     {
-                        Method = typeof(TestStaticClass).GetMethod(nameof(TestStaticClass.MethodWithArgsAndReturn)),
+                        Method = typeof(TestClass).GetMethod(nameof(TestClass.StaticMethodWithArgsAndReturn)),
                         Args = new object[] { 2, 5 },
-                        ExpectedResult = TestStaticClass.MethodWithArgsAndReturn(2, 5)
+                        ExpectedResult = TestClass.StaticMethodWithArgsAndReturn(2, 5)
+                    },
+
+                    new TestCaseData<MethodInfo>()
+                    {
+                        Method = typeof(TestStruct).GetMethod(nameof(TestStruct.StaticMethodNoArgsHasReturn)),
+                        Args = null,
+                        ExpectedResult = TestStruct.StaticMethodNoArgsHasReturn()
+                    },
+                    new TestCaseData<MethodInfo>()
+                    {
+                        Method = typeof(TestStruct).GetMethod(nameof(TestStruct.StaticMethodNoArgsHasReturn)),
+                        Args = new object[0],
+                        ExpectedResult = TestStruct.StaticMethodNoArgsHasReturn()
+                    },
+                    new TestCaseData<MethodInfo>()
+                    {
+                        Method = typeof(TestStruct).GetMethod(nameof(TestStruct.StaticMethodWithArgsAndReturn)),
+                        Args = new object[] { 2, 5 },
+                        ExpectedResult = TestStruct.StaticMethodWithArgsAndReturn(2, 5)
                     },
 
                     // Instance
                     new TestCaseData<MethodInfo>()
                     {
-                        Instance = new TestInstanceClass(),
-                        Method = typeof(TestInstanceClass).GetMethod(nameof(TestInstanceClass.MethodNoArgsHasReturn)),
+                        Instance = new TestClass(),
+                        Method = typeof(TestClass).GetMethod(nameof(TestClass.MethodNoArgsHasReturn)),
                         Args = null,
-                        ExpectedResult = new TestInstanceClass().MethodNoArgsHasReturn()
+                        ExpectedResult = new TestClass().MethodNoArgsHasReturn()
                     },
                     new TestCaseData<MethodInfo>()
                     {
-                        Instance = new TestInstanceClass(),
-                        Method = typeof(TestInstanceClass).GetMethod(nameof(TestInstanceClass.MethodNoArgsHasReturn)),
+                        Instance = new TestClass(),
+                        Method = typeof(TestClass).GetMethod(nameof(TestClass.MethodNoArgsHasReturn)),
                         Args = new object[0],
-                        ExpectedResult = new TestInstanceClass().MethodNoArgsHasReturn()
+                        ExpectedResult = new TestClass().MethodNoArgsHasReturn()
                     },
                     new TestCaseData<MethodInfo>()
                     {
-                        Instance = new TestInstanceClass(),
-                        Method = typeof(TestInstanceClass).GetMethod(nameof(TestInstanceClass.MethodWithArgsAndReturn)),
+                        Instance = new TestClass(),
+                        Method = typeof(TestClass).GetMethod(nameof(TestClass.MethodWithArgsAndReturn)),
                         Args = new object[] { 2, 5 },
-                        ExpectedResult = new TestInstanceClass().MethodWithArgsAndReturn(2, 5)
+                        ExpectedResult = new TestClass().MethodWithArgsAndReturn(2, 5)
+                    },
+
+                    new TestCaseData<MethodInfo>()
+                    {
+                        Instance = new TestStruct(),
+                        Method = typeof(TestStruct).GetMethod(nameof(TestStruct.MethodNoArgsHasReturn)),
+                        Args = null,
+                        ExpectedResult = new TestStruct().MethodNoArgsHasReturn()
+                    },
+                    new TestCaseData<MethodInfo>()
+                    {
+                        Instance = new TestStruct(),
+                        Method = typeof(TestStruct).GetMethod(nameof(TestStruct.MethodNoArgsHasReturn)),
+                        Args = new object[0],
+                        ExpectedResult = new TestStruct().MethodNoArgsHasReturn()
+                    },
+                    new TestCaseData<MethodInfo>()
+                    {
+                        Instance = new TestStruct(),
+                        Method = typeof(TestStruct).GetMethod(nameof(TestStruct.MethodWithArgsAndReturn)),
+                        Args = new object[] { 2, 5 },
+                        ExpectedResult = new TestStruct().MethodWithArgsAndReturn(2, 5)
                     }
                 };
             }
@@ -121,15 +205,26 @@ namespace DynamicMethodGeneration.Tests
                 {
                     new TestCaseData<PropertyInfo>()
                     {
-                        Instance = new TestInstanceClass(),
-                        Method = typeof(TestInstanceClass).GetProperty(nameof(TestInstanceClass.PropertyWithoutArgument)),
+                        Instance = new TestClass(),
+                        Method = typeof(TestClass).GetProperty(nameof(TestClass.PropertyTest)),
                         Args = new object[] { 2 }
                     },
                     new TestCaseData<PropertyInfo>()
                     {
-                        Method = typeof(TestStaticClass).GetProperty(nameof(TestStaticClass.PropertyWithoutArgument)),
+                        Method = typeof(TestClass).GetProperty(nameof(TestClass.StaticPropertyTest)),
                         Args = new object[] { 2 }
-                    }
+                    },
+                    new TestCaseData<PropertyInfo>()
+                    {
+                        Instance = new TestStruct(),
+                        Method = typeof(TestStruct).GetProperty(nameof(TestStruct.PropertyTest)),
+                        Args = new object[] { 2 }
+                    },
+                    new TestCaseData<PropertyInfo>()
+                    {
+                        Method = typeof(TestStruct).GetProperty(nameof(TestStruct.StaticPropertyTest)),
+                        Args = new object[] { 2 }
+                    },
                 };
             }
         }
@@ -142,15 +237,26 @@ namespace DynamicMethodGeneration.Tests
                 {
                     new TestCaseData<FieldInfo>()
                     {
-                        Instance = new TestInstanceClass(),
-                        Method = typeof(TestInstanceClass).GetField(nameof(TestInstanceClass.FieldTest)),
+                        Instance = new TestClass(),
+                        Method = typeof(TestClass).GetField(nameof(TestClass.FieldTest)),
                         Args = new object[] { 2 }
                     },
                     new TestCaseData<FieldInfo>()
                     {
-                        Method = typeof(TestStaticClass).GetField(nameof(TestStaticClass.FieldTest)),
+                        Method = typeof(TestClass).GetField(nameof(TestClass.StaticFieldTest)),
                         Args = new object[] { 2 }
-                    }
+                    },
+                    new TestCaseData<FieldInfo>()
+                    {
+                        Instance = new TestStruct(),
+                        Method = typeof(TestStruct).GetField(nameof(TestStruct.FieldTest)),
+                        Args = new object[] { 2 }
+                    },
+                    new TestCaseData<FieldInfo>()
+                    {
+                        Method = typeof(TestStruct).GetField(nameof(TestStruct.StaticFieldTest)),
+                        Args = new object[] { 2 }
+                    },
                 };
             }
         }

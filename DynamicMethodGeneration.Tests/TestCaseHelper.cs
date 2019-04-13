@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace DynamicMethodGeneration.Tests
+﻿namespace DynamicMethodGeneration.Tests
 {
-    internal class TestHelper
+    internal static class TestCaseHelper
     {
         public static object[] GetArgs(object[] args, object instance)
         {

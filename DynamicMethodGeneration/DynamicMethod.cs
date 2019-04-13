@@ -3,10 +3,12 @@
 namespace DynamicMethodGeneration
 {
     // TODO: Verify that delegate matches the args + types provided
+    // TODO: Verify TInstance is correct type
     public class DynamicMethod : IDynamicMethod
     {
         internal Delegate Invoker { get; set; }
-        internal Type UnderlyingType { get; set; }
+        internal Type DeclaringType { get; set; }
+        internal Type[] ArgumentTypes { get; set; }
 
         public void Invoke()
         {
@@ -46,29 +48,30 @@ namespace DynamicMethodGeneration
     public class DynamicMethod<TReturn> : IDynamicMethod<TReturn>
     {
         internal Delegate Invoker { get; set; }
-        internal Type UnderlyingType { get; set; }
+        internal Type DeclaringType { get; set; }
+        internal Type[] ArgumentTypes { get; set; }
 
-        public TReturn Invoke()
+        public TReturn InvokeAndReturn()
         {
             return ((Func<TReturn>)Invoker)();
         }
 
-        public TReturn Invoke<TArg1>(TArg1 arg1)
+        public TReturn InvokeAndReturn<TArg1>(TArg1 arg1)
         {
             return ((Func<TArg1, TReturn>)Invoker)(arg1);
         }
 
-        public TReturn Invoke<TArg1, TArg2>(TArg1 arg1, TArg2 arg2)
+        public TReturn InvokeAndReturn<TArg1, TArg2>(TArg1 arg1, TArg2 arg2)
         {
             return ((Func<TArg1, TArg2, TReturn>)Invoker)(arg1, arg2);
         }
 
-        public TReturn Invoke<TArg1, TArg2, TArg3>(TArg1 arg1, TArg2 arg2, TArg3 arg3)
+        public TReturn InvokeAndReturn<TArg1, TArg2, TArg3>(TArg1 arg1, TArg2 arg2, TArg3 arg3)
         {
             return ((Func<TArg1, TArg2, TArg3, TReturn>)Invoker)(arg1, arg2, arg3);
         }
 
-        public TReturn Invoke(params object[] args)
+        public TReturn InvokeAndReturn(params object[] args)
         {
             return (TReturn)Invoker.DynamicInvoke(args);
         }

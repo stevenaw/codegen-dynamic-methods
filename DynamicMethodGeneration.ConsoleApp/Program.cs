@@ -29,7 +29,7 @@ namespace DynamicMethodGeneration.ConsoleApp
             var getter = propInfo.CompileGetter<int>();
 
             setter.WithInstance(target).Invoke(testValue);
-            var value = getter.WithInstance(target).Invoke();
+            var value = getter.WithInstance(target).InvokeAndReturn();
 
             Console.WriteLine($"Return value of prop = {value}");
         }
@@ -46,7 +46,7 @@ namespace DynamicMethodGeneration.ConsoleApp
             var getter = propInfo.CompileGetter<int>();
 
             setter.WithInstance(target).Invoke(testValue);
-            var value = getter.WithInstance(target).Invoke();
+            var value = getter.WithInstance(target).InvokeAndReturn();
 
             Console.WriteLine($"Return value of field = {value}");
         }
@@ -62,7 +62,7 @@ namespace DynamicMethodGeneration.ConsoleApp
 
             // Instance method /w no args and return value
             var methodNoArgsHasReturn = owningType.GetMethod(nameof(TestInstanceClass.MethodNoArgsHasReturn)).Compile<int>();
-            var value = methodNoArgsHasReturn.WithInstance(target).Invoke();
+            var value = methodNoArgsHasReturn.WithInstance(target).InvokeAndReturn();
             Console.WriteLine($"Return value = {value}");
 
             // Instance method /w args and no return
@@ -71,12 +71,12 @@ namespace DynamicMethodGeneration.ConsoleApp
 
             // Instance method /w args and return value
             var methodHasArgsHasReturn = owningType.GetMethod(nameof(TestInstanceClass.MethodWithArgsAndReturn)).Compile<int>();
-            value = methodHasArgsHasReturn.WithInstance(target).Invoke(2, 5);
+            value = methodHasArgsHasReturn.WithInstance(target).InvokeAndReturn(2, 5);
             Console.WriteLine($"Return value = {value}");
 
             // Instance method /w args and return value as DynamicInvoke
             var methodManyArgsHasReturn = owningType.GetMethod(nameof(TestInstanceClass.MethodWithManyArgsAndReturn)).Compile<int>();
-            value = methodManyArgsHasReturn.WithInstance(target).Invoke(2, 3, 5, 8, 13, 21);
+            value = methodManyArgsHasReturn.WithInstance(target).InvokeAndReturn(2, 3, 5, 8, 13, 21);
             Console.WriteLine($"Return value = {value}");
         }
 
@@ -90,7 +90,7 @@ namespace DynamicMethodGeneration.ConsoleApp
 
             // Static method /w no args and return value
             var methodNoArgsHasReturn = owningType.GetMethod(nameof(TestClass.MethodNoArgsHasReturn)).Compile<int>();
-            var value = methodNoArgsHasReturn.Invoke();
+            var value = methodNoArgsHasReturn.InvokeAndReturn();
             Console.WriteLine($"Return value = {value}");
 
             // Static method /w args and no return
@@ -99,7 +99,7 @@ namespace DynamicMethodGeneration.ConsoleApp
 
             // Static method /w args and return value
             var methodHasArgsHasReturn = owningType.GetMethod(nameof(TestClass.MethodWithArgsAndReturn)).Compile<int>();
-            value = methodHasArgsHasReturn.Invoke(2, 5);
+            value = methodHasArgsHasReturn.InvokeAndReturn(2, 5);
             Console.WriteLine($"Return value = {value}");
         }
     }

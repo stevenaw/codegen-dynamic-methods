@@ -18,7 +18,7 @@ namespace DynamicMethodGeneration.Tests
 
             Assert.That(method, Is.Not.Null);
 
-            var methodArgs = TestHelper.GetArgs(testCase.Args, testCase.Instance);
+            var methodArgs = TestCaseHelper.GetArgs(testCase.Args, testCase.Instance);
             method.Invoker.DynamicInvoke(methodArgs);
         }
 
@@ -31,7 +31,7 @@ namespace DynamicMethodGeneration.Tests
 
             Assert.That(method, Is.Not.Null);
 
-            var methodArgs = TestHelper.GetArgs(testCase.Args, testCase.Instance);
+            var methodArgs = TestCaseHelper.GetArgs(testCase.Args, testCase.Instance);
             var result = (int)method.Invoker.DynamicInvoke(methodArgs);
 
             Assert.That(result, Is.EqualTo(testCase.ExpectedResult));
@@ -46,8 +46,8 @@ namespace DynamicMethodGeneration.Tests
             const string expectedValue = "World";
 
             var factory = new DynamicMethodFactory();
-            var instance = new TestInstanceClass();
-            var member = typeof(TestInstanceClass)
+            var instance = new TestClass();
+            var member = typeof(TestClass)
                 .GetProperties()
                 .First(o => o.GetIndexParameters().Any());
 
@@ -57,7 +57,7 @@ namespace DynamicMethodGeneration.Tests
 
             var getRequest = DynamicMethodRequest.MakeRequest(member.GetMethod);
             var getMethod = factory.GetFunction<string>(getRequest);
-            var value = getMethod.Invoke(instance, expectedKey);
+            var value = getMethod.InvokeAndReturn(instance, expectedKey);
 
             Assert.That(value, Is.EqualTo(expectedValue));
         }
@@ -66,31 +66,31 @@ namespace DynamicMethodGeneration.Tests
         public void GenerateProperty_ShouldGetValue()
         {
             var factory = new DynamicMethodFactory();
-            var instance = new TestInstanceClass() { PropertyWithoutArgument = 3 };
-            var member = typeof(TestInstanceClass).GetProperty(nameof(TestInstanceClass.PropertyWithoutArgument));
+            var instance = new TestClass() { PropertyTest = 3 };
+            var member = typeof(TestClass).GetProperty(nameof(TestClass.PropertyTest));
 
             var getRequest = DynamicMethodRequest.MakeRequest(member.GetMethod);
             var getMethod = factory.GetFunction<int>(getRequest);
-            var methodFunc = (Func<TestInstanceClass, int>)getMethod.Invoker;
+            var methodFunc = (Func<TestClass, int>)getMethod.Invoker;
 
             var result = methodFunc(instance);
-            Assert.That(result, Is.EqualTo(instance.PropertyWithoutArgument));
+            Assert.That(result, Is.EqualTo(instance.PropertyTest));
         }
 
         [Test]
         public void GenerateProperty_ShouldSetValue()
         {
             var factory = new DynamicMethodFactory();
-            var instance = new TestInstanceClass();
-            var member = typeof(TestInstanceClass).GetProperty(nameof(TestInstanceClass.PropertyWithoutArgument));
+            var instance = new TestClass();
+            var member = typeof(TestClass).GetProperty(nameof(TestClass.PropertyTest));
 
             var setRequest = DynamicMethodRequest.MakeRequest(member.SetMethod);
 
             var setMethod = factory.GetAction(setRequest);
-            var methodFunc = (Action<TestInstanceClass, int>)setMethod.Invoker;
+            var methodFunc = (Action<TestClass, int>)setMethod.Invoker;
 
             methodFunc(instance, 3);
-            Assert.That(instance.PropertyWithoutArgument, Is.EqualTo(3));
+            Assert.That(instance.PropertyTest, Is.EqualTo(3));
         }
 
         [TestCaseSource(typeof(TestCases), nameof(TestCases.PropertyTestCases))]
@@ -101,13 +101,13 @@ namespace DynamicMethodGeneration.Tests
 
             var setRequest = DynamicMethodRequest.MakeRequest(testCase.Method.SetMethod);
             var setMethod = factory.GetAction(setRequest);
-            var setArgs = TestHelper.GetArgs(testCase.Args, testCase.Instance);
+            var setArgs = TestCaseHelper.GetArgs(testCase.Args, testCase.Instance);
             setMethod.Invoke(setArgs);
 
             var getRequest = DynamicMethodRequest.MakeRequest(testCase.Method.GetMethod);
             var getMethod = factory.GetFunction<int>(getRequest);
-            var getArgs = TestHelper.GetArgs(null, testCase.Instance);
-            var result = getMethod.Invoke(getArgs);
+            var getArgs = TestCaseHelper.GetArgs(null, testCase.Instance);
+            var result = getMethod.InvokeAndReturn(getArgs);
 
             Assert.That(result, Is.EqualTo(expectedResult));
         }
@@ -116,12 +116,12 @@ namespace DynamicMethodGeneration.Tests
         public void GenerateField_ShouldGetValue()
         {
             var factory = new DynamicMethodFactory();
-            var instance = new TestInstanceClass() { FieldTest = 3 };
-            var member = typeof(TestInstanceClass).GetField(nameof(TestInstanceClass.FieldTest));
+            var instance = new TestClass() { FieldTest = 3 };
+            var member = typeof(TestClass).GetField(nameof(TestClass.FieldTest));
 
             var getRequest = DynamicMethodRequest.MakeGetterRequest(member);
             var getMethod = factory.GetFunction<int>(getRequest);
-            var methodFunc = (Func<TestInstanceClass, int>)getMethod.Invoker;
+            var methodFunc = (Func<TestClass, int>)getMethod.Invoker;
 
             var result = methodFunc(instance);
             Assert.That(result, Is.EqualTo(instance.FieldTest));
@@ -131,17 +131,16 @@ namespace DynamicMethodGeneration.Tests
         public void GenerateField_ShouldSetValue()
         {
             var factory = new DynamicMethodFactory();
-            var instance = new TestInstanceClass();
-            var member = typeof(TestInstanceClass).GetField(nameof(TestInstanceClass.FieldTest));
+            var instance = new TestClass();
+            var member = typeof(TestClass).GetField(nameof(TestClass.FieldTest));
 
             var setRequest = DynamicMethodRequest.MakeSetterRequest(member);
             var setMethod = factory.GetAction(setRequest);
-            var methodFunc = (Action<TestInstanceClass, int>)setMethod.Invoker;
+            var methodFunc = (Action<TestClass, int>)setMethod.Invoker;
 
             methodFunc(instance, 3);
             Assert.That(instance.FieldTest, Is.EqualTo(3));
         }
-
 
         [TestCaseSource(typeof(TestCases), nameof(TestCases.FieldTestCases))]
         public void GenerateField_ShouldBeBidirectional(TestCaseData<FieldInfo> testCase)
@@ -151,13 +150,13 @@ namespace DynamicMethodGeneration.Tests
 
             var setRequest = DynamicMethodRequest.MakeSetterRequest(testCase.Method);
             var setMethod = factory.GetAction(setRequest);
-            var setArgs = TestHelper.GetArgs(testCase.Args, testCase.Instance);
+            var setArgs = TestCaseHelper.GetArgs(testCase.Args, testCase.Instance);
             setMethod.Invoke(setArgs);
 
             var getRequest = DynamicMethodRequest.MakeGetterRequest(testCase.Method);
             var getMethod = factory.GetFunction<int>(getRequest);
-            var getArgs = TestHelper.GetArgs(null, testCase.Instance);
-            var result = getMethod.Invoke(getArgs);
+            var getArgs = TestCaseHelper.GetArgs(null, testCase.Instance);
+            var result = getMethod.InvokeAndReturn(getArgs);
 
             Assert.That(result, Is.EqualTo(expectedResult));
         }
