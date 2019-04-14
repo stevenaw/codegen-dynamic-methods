@@ -98,7 +98,6 @@ namespace DynamicMethodGeneration
         {
             var hasReturnType = returnType != null && returnType != typeof(void);
 
-            // TODO: Rest of these
             Type baseType = null;
             switch (genericArgs.Length)
             {
@@ -132,6 +131,8 @@ namespace DynamicMethodGeneration
                 case 9:
                     baseType = hasReturnType ? typeof(Func<,,,,,,,,,>) : typeof(Action<,,,,,,,,>);
                     break;
+                default:
+                    throw new InvalidOperationException("Too many parameters");
             }
 
             var args = hasReturnType ? ArrayHelper.Append(genericArgs, returnType) : genericArgs;

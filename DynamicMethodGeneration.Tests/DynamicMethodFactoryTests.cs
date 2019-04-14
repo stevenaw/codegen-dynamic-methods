@@ -160,5 +160,18 @@ namespace DynamicMethodGeneration.Tests
 
             Assert.That(result, Is.EqualTo(expectedResult));
         }
+
+        [Test]
+        public void GenerateDelegate_ShouldFail_WhenTooManyParameters()
+        {
+            var factory = new DynamicMethodFactory();
+            var methodInfo = typeof(TestClass).GetMethod(nameof(TestClass.MethodTooManyParameters));
+            var methodRequest = DynamicMethodRequest.MakeRequest(methodInfo);
+
+            Assert.That(
+                () => factory.GetAction(methodRequest),
+                Throws.InvalidOperationException
+            );
+        }
     }
 }

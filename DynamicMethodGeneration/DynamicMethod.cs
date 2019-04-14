@@ -2,13 +2,12 @@
 
 namespace DynamicMethodGeneration
 {
-    // TODO: Verify that delegate matches the args + types provided ??
+    // TODO: Improved error checking if args + types don't match
     public class DynamicMethod : IDynamicMethod, IInstanceBinder
     {
         internal Delegate Invoker { get; set; }
         internal Type[] ArgumentTypes { get; set; }
 
-        // TODO: Create internal struct "MemberMetadata" to house DeclaringType and IsStatic
         internal Type DeclaringType { get; set; }
         internal bool IsStatic { get; set; }
 

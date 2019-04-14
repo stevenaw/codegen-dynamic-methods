@@ -3,6 +3,7 @@ using System.Reflection;
 
 namespace DynamicMethodGeneration
 {
+    // TODO: Tests
     public static class Compiler
     {
         private static DynamicMethodFactory _factory = new DynamicMethodFactory();
@@ -18,7 +19,6 @@ namespace DynamicMethodGeneration
             return GetFunction<TResult, MethodInfo>(member, DynamicMethodRequest.MakeRequest);
         }
 
-        // TODO: Tests
         public static BidirectionalDynamicMethod<TResult> Compile<TResult>(this PropertyInfo member)
         {
             var getter = CompileGetter<TResult>(member);
@@ -42,7 +42,6 @@ namespace DynamicMethodGeneration
             return GetFunction<TResult, MethodInfo>(member.GetMethod, DynamicMethodRequest.MakeRequest);
         }
 
-        // TODO: Tests
         public static BidirectionalDynamicMethod<TResult> Compile<TResult>(this FieldInfo member)
         {
             var getter = CompileGetter<TResult>(member);
