@@ -102,3 +102,13 @@ var getter = memberInfo.CompileGetter<int>().WithInstance(instance);
 setter.Invoke(42);
 var value = getter.Invoke(42);
 ```
+
+## Benchmarks
+A few benchmarks as run from my machine.
+
+|                          Method |      Mean |     Error |    StdDev |    Median |
+|-------------------------------- |----------:|----------:|----------:|----------:|
+|       Codegen_GenerateAndInvoke | 134.18 ns | 2.7031 ns | 6.0459 ns | 130.87 ns |
+|              Codegen_BareInvoke |  27.57 ns | 1.2707 ns | 3.7467 ns |  28.66 ns |
+| Codegen_BareInvoke_WithInstance |  37.81 ns | 0.6034 ns | 0.5644 ns |  37.62 ns |
+|           Reflection_BareInvoke | 250.10 ns | 1.5043 ns | 1.4071 ns | 250.50 ns |
