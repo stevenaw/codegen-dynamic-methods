@@ -4,11 +4,12 @@ namespace DynamicMethodGeneration
 {
     // TODO: Verify that delegate matches the args + types provided
     // TODO: Verify TInstance is correct type
-    public class DynamicMethod : IDynamicMethod
+    public class DynamicMethod : IDynamicMethod, IInstanceBinder
     {
         internal Delegate Invoker { get; set; }
         internal Type DeclaringType { get; set; }
         internal Type[] ArgumentTypes { get; set; }
+        internal bool IsStatic { get; set; }
 
         public void Invoke()
         {
@@ -37,6 +38,9 @@ namespace DynamicMethodGeneration
 
         public DynamicMethodInvocation<TInstance> WithInstance<TInstance>(TInstance instance)
         {
+            if (IsStatic)
+                throw new InvalidOperationException("Can not bind instance to a static member");
+
             return new DynamicMethodInvocation<TInstance>()
             {
                 Method = this,
@@ -45,39 +49,43 @@ namespace DynamicMethodGeneration
         }
     }
 
-    public class DynamicMethod<TReturn> : IDynamicMethod<TReturn>
+    public class DynamicMethod<TReturn> : IDynamicMethod<TReturn>, IInstanceBinder<TReturn>
     {
         internal Delegate Invoker { get; set; }
         internal Type DeclaringType { get; set; }
         internal Type[] ArgumentTypes { get; set; }
+        internal bool IsStatic { get; set; }
 
-        public TReturn InvokeAndReturn()
+        public TReturn Invoke()
         {
             return ((Func<TReturn>)Invoker)();
         }
 
-        public TReturn InvokeAndReturn<TArg1>(TArg1 arg1)
+        public TReturn Invoke<TArg1>(TArg1 arg1)
         {
             return ((Func<TArg1, TReturn>)Invoker)(arg1);
         }
 
-        public TReturn InvokeAndReturn<TArg1, TArg2>(TArg1 arg1, TArg2 arg2)
+        public TReturn Invoke<TArg1, TArg2>(TArg1 arg1, TArg2 arg2)
         {
             return ((Func<TArg1, TArg2, TReturn>)Invoker)(arg1, arg2);
         }
 
-        public TReturn InvokeAndReturn<TArg1, TArg2, TArg3>(TArg1 arg1, TArg2 arg2, TArg3 arg3)
+        public TReturn Invoke<TArg1, TArg2, TArg3>(TArg1 arg1, TArg2 arg2, TArg3 arg3)
         {
             return ((Func<TArg1, TArg2, TArg3, TReturn>)Invoker)(arg1, arg2, arg3);
         }
 
-        public TReturn InvokeAndReturn(params object[] args)
+        public TReturn Invoke(params object[] args)
         {
             return (TReturn)Invoker.DynamicInvoke(args);
         }
 
         public DynamicMethodInvocation<TInstance, TReturn> WithInstance<TInstance>(TInstance instance)
         {
+            if (IsStatic)
+                throw new InvalidOperationException("Can not bind instance to a static member");
+
             return new DynamicMethodInvocation<TInstance, TReturn>()
             {
                 Method = this,

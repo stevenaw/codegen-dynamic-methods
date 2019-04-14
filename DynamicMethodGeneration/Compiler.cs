@@ -8,33 +8,60 @@ namespace DynamicMethodGeneration
         private static DynamicMethodFactory _factory = new DynamicMethodFactory();
         private static DynamicMethodCache _cache = new DynamicMethodCache();
 
-        public static DynamicMethod Compile(this MethodInfo methodInfo)
+        public static DynamicMethod Compile(this MethodInfo member)
         {
-            return  GetAction(methodInfo, DynamicMethodRequest.MakeRequest);
+            return  GetAction(member, DynamicMethodRequest.MakeRequest);
         }
 
-        public static DynamicMethod<TResult> Compile<TResult>(this MethodInfo methodInfo)
+        public static DynamicMethod<TResult> Compile<TResult>(this MethodInfo member)
         {
-            return GetFunction<TResult, MethodInfo>(methodInfo, DynamicMethodRequest.MakeRequest);
+            return GetFunction<TResult, MethodInfo>(member, DynamicMethodRequest.MakeRequest);
         }
 
-        // TODO: A single call to Compile<TResult>(PropertyInfo), with Invoke() that sets and Invoke<TResult>() that gets
-        public static DynamicMethod CompileSetter(this PropertyInfo methodInfo)
+        // TODO: Tests
+        public static BidirectionalDynamicMethod<TResult> Compile<TResult>(this PropertyInfo member)
         {
-            return GetAction(methodInfo.SetMethod, DynamicMethodRequest.MakeRequest);
-        }
-        public static DynamicMethod<TResult> CompileGetter<TResult>(this PropertyInfo methodInfo)
-        {
-            return GetFunction<TResult, MethodInfo>(methodInfo.GetMethod, DynamicMethodRequest.MakeRequest);
+            var getter = CompileGetter<TResult>(member);
+            var setter = CompileSetter(member);
+
+            return new BidirectionalDynamicMethod<TResult>()
+            {
+                Get = getter,
+                Set = setter,
+                IsStatic = getter.IsStatic,
+            };
         }
 
-        public static DynamicMethod CompileSetter(this FieldInfo methodInfo)
+        public static DynamicMethod CompileSetter(this PropertyInfo member)
         {
-            return GetAction(methodInfo, DynamicMethodRequest.MakeSetterRequest);
+            return GetAction(member.SetMethod, DynamicMethodRequest.MakeRequest);
         }
-        public static DynamicMethod<TResult> CompileGetter<TResult>(this FieldInfo methodInfo)
+        public static DynamicMethod<TResult> CompileGetter<TResult>(this PropertyInfo member)
         {
-            return GetFunction<TResult, FieldInfo>(methodInfo, DynamicMethodRequest.MakeGetterRequest);
+            return GetFunction<TResult, MethodInfo>(member.GetMethod, DynamicMethodRequest.MakeRequest);
+        }
+
+        // TODO: Tests
+        public static BidirectionalDynamicMethod<TResult> Compile<TResult>(this FieldInfo member)
+        {
+            var getter = CompileGetter<TResult>(member);
+            var setter = CompileSetter(member);
+
+            return new BidirectionalDynamicMethod<TResult>()
+            {
+                Get = getter,
+                Set = setter,
+                IsStatic = getter.IsStatic,
+            };
+        }
+
+        public static DynamicMethod CompileSetter(this FieldInfo member)
+        {
+            return GetAction(member, DynamicMethodRequest.MakeSetterRequest);
+        }
+        public static DynamicMethod<TResult> CompileGetter<TResult>(this FieldInfo member)
+        {
+            return GetFunction<TResult, FieldInfo>(member, DynamicMethodRequest.MakeGetterRequest);
         }
 
         private static DynamicMethod GetAction<TMemberInfo>(TMemberInfo memberInfo, Func<TMemberInfo, DynamicMethodRequest> makeRequest) where TMemberInfo : MemberInfo

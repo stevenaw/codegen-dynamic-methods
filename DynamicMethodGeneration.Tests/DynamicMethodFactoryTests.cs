@@ -57,7 +57,7 @@ namespace DynamicMethodGeneration.Tests
 
             var getRequest = DynamicMethodRequest.MakeRequest(member.GetMethod);
             var getMethod = factory.GetFunction<string>(getRequest);
-            var value = getMethod.InvokeAndReturn(instance, expectedKey);
+            var value = getMethod.Invoke(instance, expectedKey);
 
             Assert.That(value, Is.EqualTo(expectedValue));
         }
@@ -107,7 +107,7 @@ namespace DynamicMethodGeneration.Tests
             var getRequest = DynamicMethodRequest.MakeRequest(testCase.Method.GetMethod);
             var getMethod = factory.GetFunction<int>(getRequest);
             var getArgs = TestCaseHelper.GetArgs(null, testCase.Instance);
-            var result = getMethod.InvokeAndReturn(getArgs);
+            var result = getMethod.Invoke(getArgs);
 
             Assert.That(result, Is.EqualTo(expectedResult));
         }
@@ -156,7 +156,7 @@ namespace DynamicMethodGeneration.Tests
             var getRequest = DynamicMethodRequest.MakeGetterRequest(testCase.Method);
             var getMethod = factory.GetFunction<int>(getRequest);
             var getArgs = TestCaseHelper.GetArgs(null, testCase.Instance);
-            var result = getMethod.InvokeAndReturn(getArgs);
+            var result = getMethod.Invoke(getArgs);
 
             Assert.That(result, Is.EqualTo(expectedResult));
         }

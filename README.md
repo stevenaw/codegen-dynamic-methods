@@ -65,3 +65,40 @@ var methodInfo = instance.GetType().GetMethod(nameof(TestClass.MethodWithArgsAnd
 var compiledMethod = methodInfo.Compile<int>();
 var result = methodHasArgsNoReturn.WithInstance(instance).Invoke(2, 5);
 ```
+
+### Properties and Fields
+For properties and fields, the same conventions apply. As properties and fields can be both set and get,
+they must be accessed through `Get` and `Set`.
+
+```csharp
+public class TestClass
+{
+    public int PropertyTest { get; set; }
+}
+
+var instance = new TestClass();
+var memberInfo = instance.GetType().GetProperty(nameof(TestClass.PropertyTest));
+
+var member = memberInfo.Compile<int>().WithInstance(instance);
+
+member.Set.Invoke(42);
+var value = member.Get.Invoke(42);
+```
+
+Alternately, `CompileSetter` and `CompilerGetter` methods are also directly available.
+
+```csharp
+public class TestClass
+{
+    public int PropertyTest { get; set; }
+}
+
+var instance = new TestClass();
+var memberInfo = instance.GetType().GetProperty(nameof(TestClass.PropertyTest));
+
+var setter = memberInfo.CompileSetter<int>().WithInstance(instance);
+var getter = memberInfo.CompileGetter<int>().WithInstance(instance);
+
+setter.Invoke(42);
+var value = getter.Invoke(42);
+```

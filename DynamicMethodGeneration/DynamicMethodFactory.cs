@@ -16,6 +16,7 @@ namespace DynamicMethodGeneration
                 Invoker = method.invoker,
                 DeclaringType = method.declaringType,
                 ArgumentTypes = method.argTypes,
+                IsStatic = methodRequest.IsStatic,
             };
         }
 
@@ -27,6 +28,7 @@ namespace DynamicMethodGeneration
                 Invoker = method.invoker,
                 DeclaringType = method.declaringType,
                 ArgumentTypes = method.argTypes,
+                IsStatic = methodRequest.IsStatic,
             };
         }
 
