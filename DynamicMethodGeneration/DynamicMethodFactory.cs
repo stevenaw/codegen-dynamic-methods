@@ -129,6 +129,9 @@ namespace DynamicMethodGeneration
                 case 8:
                     baseType = hasReturnType ? typeof(Func<,,,,,,,,>) : typeof(Action<,,,,,,,>);
                     break;
+                case 9:
+                    baseType = hasReturnType ? typeof(Func<,,,,,,,,,>) : typeof(Action<,,,,,,,,>);
+                    break;
             }
 
             var args = hasReturnType ? ArrayHelper.Append(genericArgs, returnType) : genericArgs;

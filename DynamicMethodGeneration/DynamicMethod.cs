@@ -2,13 +2,14 @@
 
 namespace DynamicMethodGeneration
 {
-    // TODO: Verify that delegate matches the args + types provided
-    // TODO: Verify TInstance is correct type
+    // TODO: Verify that delegate matches the args + types provided ??
     public class DynamicMethod : IDynamicMethod, IInstanceBinder
     {
         internal Delegate Invoker { get; set; }
-        internal Type DeclaringType { get; set; }
         internal Type[] ArgumentTypes { get; set; }
+
+        // TODO: Create internal struct "MemberMetadata" to house DeclaringType and IsStatic
+        internal Type DeclaringType { get; set; }
         internal bool IsStatic { get; set; }
 
         public void Invoke()
@@ -38,8 +39,7 @@ namespace DynamicMethodGeneration
 
         public DynamicMethodInvocation<TInstance> WithInstance<TInstance>(TInstance instance)
         {
-            if (IsStatic)
-                throw new InvalidOperationException("Can not bind instance to a static member");
+            Guard.CanBindInstance<TInstance>(DeclaringType, IsStatic);
 
             return new DynamicMethodInvocation<TInstance>()
             {
@@ -52,8 +52,8 @@ namespace DynamicMethodGeneration
     public class DynamicMethod<TReturn> : IDynamicMethod<TReturn>, IInstanceBinder<TReturn>
     {
         internal Delegate Invoker { get; set; }
-        internal Type DeclaringType { get; set; }
         internal Type[] ArgumentTypes { get; set; }
+        internal Type DeclaringType { get; set; }
         internal bool IsStatic { get; set; }
 
         public TReturn Invoke()
@@ -83,8 +83,7 @@ namespace DynamicMethodGeneration
 
         public DynamicMethodInvocation<TInstance, TReturn> WithInstance<TInstance>(TInstance instance)
         {
-            if (IsStatic)
-                throw new InvalidOperationException("Can not bind instance to a static member");
+            Guard.CanBindInstance<TInstance>(DeclaringType, IsStatic);
 
             return new DynamicMethodInvocation<TInstance, TReturn>()
             {

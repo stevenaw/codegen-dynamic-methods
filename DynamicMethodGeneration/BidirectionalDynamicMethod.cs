@@ -6,13 +6,13 @@ namespace DynamicMethodGeneration
     {
         public IDynamicMethod<TReturn> Get { get; internal set; }
         public IDynamicMethod Set { get; internal set; }
+
+        internal Type DeclaringType { get; set; }
         internal bool IsStatic { get; set; }
 
         public BidirectionalDynamicMethod<TReturn> WithInstance<TInstance>(TInstance instance)
         {
-            // TODO: Tests in all places this check exists
-            if (IsStatic)
-                throw new InvalidOperationException("Can not bind instance to a static member");
+            Guard.CanBindInstance<TInstance>(DeclaringType, IsStatic);
 
             var getter = new DynamicMethodInvocation<TInstance, TReturn>()
             {
@@ -28,7 +28,9 @@ namespace DynamicMethodGeneration
             return new BidirectionalDynamicMethod<TReturn>()
             {
                 Get = getter,
-                Set = setter
+                Set = setter,
+                DeclaringType = DeclaringType,
+                IsStatic = IsStatic,
             };
         }
     }

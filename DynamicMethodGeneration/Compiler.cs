@@ -28,6 +28,7 @@ namespace DynamicMethodGeneration
             {
                 Get = getter,
                 Set = setter,
+                DeclaringType = getter.DeclaringType,
                 IsStatic = getter.IsStatic,
             };
         }
@@ -51,6 +52,7 @@ namespace DynamicMethodGeneration
             {
                 Get = getter,
                 Set = setter,
+                DeclaringType = getter.DeclaringType,
                 IsStatic = getter.IsStatic,
             };
         }
